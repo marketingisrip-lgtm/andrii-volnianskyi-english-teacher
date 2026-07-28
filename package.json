@@ -3,6 +3,6 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "build": "rm -rf dist && mkdir -p dist/server && cp index.html styles.css growth-path.css growth-curve-layout.css certificate-evidence.css teaching-identity.css advanced-path.css future-targets.css project-marks.css real-company-logos.css provider-marks.css education-positioning.css script.js dist/ && cp -R assets dist/ && cp server/index.js dist/server/"
+    "build": "rm -rf dist && mkdir -p dist/server && cp index.html styles.css growth-path.css growth-curve-layout.css certificate-evidence.css teaching-identity.css advanced-path.css future-targets.css project-marks.css real-company-logos.css provider-marks.css education-positioning.css grade-badges.css script.js dist/ && cp -R assets dist/ && cp server/index.js dist/server/"
   }
 }
