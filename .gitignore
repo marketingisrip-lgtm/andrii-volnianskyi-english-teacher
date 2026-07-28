@@ -1,2 +1,10 @@
 # Local Netlify folder
 .netlify
+
+# Build output (Netlify runs `npm run build` and publishes dist/)
+dist
+
+# macOS
+.DS_Store
+
+node_modules
