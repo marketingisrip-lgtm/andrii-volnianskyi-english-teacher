@@ -1,0 +1,8 @@
+{
+  "name": "andrii-volnianskyi-english-teacher",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "rm -rf dist && mkdir -p dist && cp index.html styles.css dist/ && cp -R assets dist/"
+  }
+}
