@@ -1,0 +1,16 @@
+{
+  "name": "quizlet-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP server for building flashcard sets and exporting them in Quizlet import format",
+  "bin": { "quizlet-mcp": "./index.js" },
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.5.4"
+  }
+}
