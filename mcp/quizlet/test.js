@@ -19,4 +19,23 @@ await S.removeCards(set.id, ["milk"]);
 assert.equal((await S.getSet(set.id)).cards.length, 2);
 await S.deleteSet(set.id);
 assert.deepEqual(await S.listSets(), []);
+// A quiz must never list the same option twice, even when cards share a definition.
+const dupSet = await S.createSet({ title: "Shared definitions", cards: [
+  { term: "a", definition: "same" }, { term: "b", definition: "same" },
+  { term: "c", definition: "other" }, { term: "d", definition: "third" }] });
+for (const q of S.makeQuiz(dupSet, { count: 4, seed: 7 })) {
+  assert.equal(new Set(q.options).size, q.options.length, `duplicate options: ${q.options}`);
+  assert.ok(q.options.includes(q.answer));
+}
+await S.deleteSet(dupSet.id);
+
+// Text pasted out of Quizlet on Windows arrives with CRLF line endings.
+assert.deepEqual(S.fromQuizletExport("cat\tкіт\r\ndog\tпес\r\n"),
+  [{ term: "cat", definition: "кіт" }, { term: "dog", definition: "пес" }]);
+
+// A tab or newline inside a card would otherwise add a phantom column or row.
+const messy = S.toQuizletImport(S.normalizeCards([{ term: "a\tb", definition: "one\ntwo" }]));
+assert.equal(messy.split("\t").length, 2);
+assert.equal(messy.split("\n").length, 1);
+
 console.log("ok");

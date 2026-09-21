@@ -120,7 +120,11 @@ export function makeQuiz(set, { count = 10, mode = "term-to-definition", seed = 
   const askTerm = mode === "term-to-definition";
   return cards.map((c, i) => {
     const answer = askTerm ? c.definition : c.term;
-    const pool = set.cards.filter((o) => o !== c).map((o) => (askTerm ? o.definition : o.term));
+    // Distractors are de-duplicated and never repeat the answer, so two cards
+    // sharing a definition can't put the same option on the list twice.
+    const pool = [...new Set(
+      set.cards.filter((o) => o !== c).map((o) => (askTerm ? o.definition : o.term))
+    )].filter((o) => o !== answer);
     const options = shuffle([answer, ...shuffle(pool).slice(0, 3)]);
     return { n: i + 1, prompt: askTerm ? c.term : c.definition, options, answer };
   });
