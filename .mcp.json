@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "quizlet": {
+      "command": "node",
+      "args": ["mcp/quizlet/index.js"]
+    }
+  }
+}
