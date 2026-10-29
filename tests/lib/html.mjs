@@ -66,6 +66,10 @@ export function parse(html) {
   }
 }
 
+// Glyph families screen readers read out by name ("north east arrow", "white square"): arrows,
+// geometric shapes, symbols, dingbats and pictographs. Letters, digits and punctuation (·, —) are not here.
+export const DECORATIVE = /[\u2190-\u21FF\u25A0-\u25FF\u2600-\u27BF\u27F0-\u27FF\u2900-\u297F\u2B00-\u2BFF\u{1F300}-\u{1FAFF}]/u;
+
 export function decode(s) {
   return s
     .replace(/&nbsp;/g, " ")

@@ -57,6 +57,11 @@ const MUTANTS = [
   ["put a non-item inside an ARIA list", edit("index.html", '<svg class="growth-line"', '<p>Extra</p><svg class="growth-line"'), "ARIA lists hold only list items, and list items sit in lists"],
   ["give a list-item role to an element outside a list", edit("index.html", '<div class="frameworks">', '<div class="frameworks" role="listitem">'), "ARIA lists hold only list items, and list items sit in lists"],
   ["name an element whose role cannot be named", edit("index.html", '<div class="frameworks">', '<div class="frameworks" role="presentation" aria-label="Frameworks">'), "aria-label sits only on elements that can be named"],
+  ["label a score with a number that only appears inside a longer one", edit("index.html", "<h3>PTE Academic · 84/90</h3>", '<h3 aria-label="PTE Academic, overall score 90">PTE Academic · 84/90</h3>'), "datetime values and accessible-only labels agree with the visible text"],
+  ["give a date a day the text does not show", edit("index.html", 'datetime="2024-08"', 'datetime="2024-08-15"'), "datetime values and accessible-only labels agree with the visible text"],
+  ["put an arrow glyph in an aria-label", edit("index.html", 'aria-label="AV English, back to top"', 'aria-label="AV English → back to top"'), "decorative glyphs are hidden from screen readers"],
+  ["name an element whose first role cannot be named", edit("index.html", '<nav class="nav wrap">', '<nav class="nav wrap" role="none presentation" aria-label="Main">'), "aria-label sits only on elements that can be named"],
+  ["leave bare text inside an ARIA list", edit("index.html", '<svg class="growth-line"', 'Planted text<svg class="growth-line"'), "ARIA lists hold only list items, and list items sit in lists"],
   ["register an issue no test re-checks", (root) => {
     const file = path.join(root, "web/known-issues.json");
     const reg = JSON.parse(readFileSync(file, "utf8"));
@@ -68,6 +73,15 @@ const MUTANTS = [
 // Changes the procedures allow must stay green, or the suite punishes the workflow it encodes.
 const ALLOWED = [
   ["stage a redesign as index-review.html (P1)", (root) => writeFileSync(path.join(root, "index-review.html"), readFileSync(path.join(root, "index.html"), "utf8"))],
+  // The accessibility tree skips a plain wrapper, so the item still belongs to its list.
+  ["wrap a list item in a plain <div>", (root) => {
+    const file = path.join(root, "index.html");
+    const lines = readFileSync(file, "utf8").split("\n");
+    const i = lines.findIndex((l) => l.includes('<div role="listitem" class="growth-point c1">'));
+    assert.ok(i >= 0 && lines[i].trimEnd().endsWith("</div>"), "anchor for the wrapped list item moved");
+    lines[i] = lines[i].replace('<div role="listitem"', '<div><div role="listitem"') + "</div>";
+    writeFileSync(file, lines.join("\n"));
+  }],
 ];
 
 // Each mutant is an independent copy, so they run four at a time.

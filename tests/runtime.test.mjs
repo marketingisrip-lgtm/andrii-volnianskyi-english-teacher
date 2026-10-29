@@ -7,7 +7,7 @@ import { createRequire } from "node:module";
 import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
-import { ROOT } from "./lib/html.mjs";
+import { ROOT, DECORATIVE } from "./lib/html.mjs";
 import { buildToTemp, serve } from "./lib/build.mjs";
 import { register, judge } from "./lib/register.mjs";
 import { decodePng, luminance, ratio } from "./lib/png.mjs";
@@ -197,35 +197,79 @@ test("sections stay readable when script.js cannot run", async () => {
   assert.deepEqual(violations, []);
 });
 
-test("screen readers do not run neighbouring labels together", async () => {
-  // NVDA and JAWS in Chromium read a container's text leaves as one string. Two leaves with no space
-  // between them (badge "C2" then "2024–2026") are heard as one word ("C22024–2026"). Read the real
-  // accessibility tree: ignored nodes (plain spans) are hoisted, as platform APIs do.
-  const { context, page } = await open({ viewport: { width: 1280, height: 900 } });
-  try {
-    const cdp = await context.newCDPSession(page);
-    const { nodes } = await cdp.send("Accessibility.getFullAXTree");
-    const byId = new Map(nodes.map((n) => [n.nodeId, n]));
-    const leaves = (n) => (n.childIds || []).flatMap((id) => { const k = byId.get(id); return !k ? [] : k.ignored ? leaves(k) : [k]; });
-    const violations = [];
-    for (const n of nodes) {
-      if (n.ignored || n.role?.value === "StaticText") continue;
-      const kids = leaves(n);
-      // A link or button with its own label is announced by that label, not by its text leaves.
-      const text = kids.filter((k) => k.role?.value === "StaticText").map((k) => k.name?.value ?? "").join("");
-      if (["link", "button"].includes(n.role?.value) && (n.name?.value ?? "") !== text) continue;
-      for (let i = 1; i < kids.length; i++) {
-        const [a, b] = [kids[i - 1], kids[i]];
-        if (a.role?.value !== "StaticText" || b.role?.value !== "StaticText") continue;
-        const [x, y] = [a.name?.value ?? "", b.name?.value ?? ""];
-        if (!/\s$/.test(x) && !/^\s/.test(y)) violations.push({ target: `${n.role?.value}: "${x}" + "${y}"`, detail: "read as one word" });
-      }
-    }
-    evidence.text_runs = violations.map((v) => v.target);
-    judge("text-runs", violations);
-  } finally {
-    await context.close();
+// The accessibility tree as Chromium builds it, with the computed display of inline-role nodes:
+// platform APIs give screen readers one text string per container, and only block-level objects
+// (or ones announced by role, like links) put a break in it.
+const AX_WIDTHS = [{ width: 1280, height: 900 }, { width: 390, height: 844 }];
+const INLINE_ROLES = new Set(["strong", "emphasis", "time", "code", "mark", "abbr", "subscript", "superscript", "deletion", "insertion"]);
+async function axTree(context, page) {
+  const cdp = await context.newCDPSession(page);
+  await cdp.send("DOM.getDocument");
+  const { nodes } = await cdp.send("Accessibility.getFullAXTree");
+  const display = new Map();
+  for (const n of nodes.filter((n) => !n.ignored && INLINE_ROLES.has(n.role?.value) && n.backendDOMNodeId)) {
+    const { object } = await cdp.send("DOM.resolveNode", { backendNodeId: n.backendDOMNodeId });
+    const { result } = await cdp.send("Runtime.callFunctionOn", { objectId: object.objectId, functionDeclaration: "function () { return getComputedStyle(this).display; }", returnByValue: true });
+    display.set(n.nodeId, result.value);
   }
+  const byId = new Map(nodes.map((n) => [n.nodeId, n]));
+  // Where a node's name comes from: the first source with a value that nothing overrides.
+  const nameSource = (n) => (n.name?.sources || []).find((src) => src.value && !src.superseded);
+  return { nodes, byId, display, nameSource };
+}
+
+test("screen readers do not run neighbouring labels together", async () => {
+  // Two text runs with no space and no object boundary between them (badge "C2" then "2024–2026",
+  // or "Download" then <strong>CV</strong>) are heard as one word. Ignored nodes (plain spans) are
+  // hoisted, and inline formatting (strong, em, time…) is read through, as screen readers do.
+  const violations = [];
+  evidence.text_runs = {};
+  for (const viewport of AX_WIDTHS) {
+    const { context, page } = await open({ viewport });
+    try {
+      const { nodes, byId, display, nameSource } = await axTree(context, page);
+      const inline = (n) => INLINE_ROLES.has(n.role?.value) && /^inline/.test(display.get(n.nodeId) || "");
+      // Text pieces in reading order; null marks a boundary (a block, an image, a link or button).
+      const pieces = (n) =>
+        (n.childIds || []).flatMap((id) => {
+          const k = byId.get(id);
+          if (!k) return [];
+          if (k.ignored) return pieces(k);
+          if (k.role?.value === "StaticText") return [k.name?.value ?? ""];
+          return inline(k) ? pieces(k) : [null];
+        });
+      const found = [];
+      for (const n of nodes) {
+        if (n.ignored || n.role?.value === "StaticText" || inline(n)) continue;
+        // A link or button named by aria-label or aria-labelledby is announced by that name instead.
+        if (["link", "button"].includes(n.role?.value) && ["attribute", "relatedElement"].includes(nameSource(n)?.type)) continue;
+        const p = pieces(n);
+        for (let i = 1; i < p.length; i++)
+          if (p[i - 1] !== null && p[i] !== null && !/\s$/.test(p[i - 1]) && !/^\s/.test(p[i])) found.push(`${n.role?.value}: "${p[i - 1]}" + "${p[i]}"`);
+      }
+      evidence.text_runs[`${viewport.width}`] = found;
+      // Text pairs, not layout: the same pair at two widths is one defect.
+      for (const target of found) if (!violations.some((v) => v.target === target)) violations.push({ target, detail: `read as one word at ${viewport.width}px` });
+    } finally {
+      await context.close();
+    }
+  }
+  judge("text-runs", violations);
+});
+
+test("screen readers hear no decorative glyphs", async () => {
+  // Catches what the static check cannot see: CSS-generated content, character references, labels.
+  const found = new Set();
+  for (const viewport of AX_WIDTHS) {
+    const { context, page } = await open({ viewport });
+    try {
+      const { nodes } = await axTree(context, page);
+      for (const n of nodes) if (!n.ignored && DECORATIVE.test(n.name?.value ?? "")) found.add(`${n.role?.value} "${n.name.value}"`);
+    } finally {
+      await context.close();
+    }
+  }
+  assert.deepEqual([...found], [], "hide decorative glyphs with aria-hidden (markup) or alternative text content: \"→\" / \"\" (CSS)");
 });
 
 test("keyboard reaches every control and focus stays visible", async () => {
@@ -280,36 +324,52 @@ test("touch targets meet WCAG 2.5.8 (24px, or spaced so 24px circles do not over
 });
 
 test("a skip link leads to the main content", async () => {
-  const { context, page } = await open({ viewport: { width: 1280, height: 900 } });
-  try {
-    await page.keyboard.press("Tab");
-    const first = await page.evaluate(() => {
-      const a = document.activeElement;
-      const target = a?.getAttribute("href")?.startsWith("#") ? document.querySelector(a.getAttribute("href")) : null;
-      const r = a.getBoundingClientRect();
-      const hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
-      return {
-        href: a?.getAttribute("href"),
-        text: a?.textContent.trim(),
-        leadsToMain: !!target && (target.tagName === "MAIN" || !!target.closest("main") || !!target.querySelector?.("main")) && target.id !== "top",
-        // A sighted keyboard user must see it: opaque, inside the window and not covered.
-        shown: getComputedStyle(a).opacity === "1" && r.width > 0 && r.height > 0 && r.top >= 0 && r.left >= 0 && r.bottom <= innerHeight && r.right <= innerWidth && (hit === a || a.contains(hit)),
-      };
-    });
-    const violations = [];
-    if (!first.leadsToMain) violations.push({ target: "index.html", detail: `first Tab stop is ${first.href} "${first.text}", not a skip link to <main>` });
-    else {
-      if (!first.shown) violations.push({ target: "index.html", detail: "the skip link is not visible when focused" });
-      await page.keyboard.press("Enter");
+  const violations = [];
+  evidence.skip_link = {};
+  for (const viewport of AX_WIDTHS) {
+    const { context, page } = await open({ viewport });
+    try {
       await page.keyboard.press("Tab");
-      first.next_tab_in_main = await page.evaluate(() => !!document.activeElement?.closest("main"));
-      if (!first.next_tab_in_main) violations.push({ target: "index.html", detail: "after following the skip link, Tab does not continue inside <main>" });
+      const first = await page.evaluate(() => {
+        const a = document.activeElement;
+        const target = a?.getAttribute("href")?.startsWith("#") ? document.querySelector(a.getAttribute("href")) : null;
+        const r = a.getBoundingClientRect();
+        // Hit-test what paints on top, whatever the link's pointer-events.
+        const pe = a.style.pointerEvents;
+        a.style.pointerEvents = "auto";
+        const hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+        a.style.pointerEvents = pe;
+        // Its text must be readable against its own background (WCAG 1.4.3, 4.5:1).
+        const rgb = (c) => (c.match(/[\d.]+/g) || []).map(Number);
+        const lum = ([r8, g8, b8]) => [r8, g8, b8].map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)).reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
+        const cs = getComputedStyle(a);
+        const [fg, bg] = [rgb(cs.color), rgb(cs.backgroundColor)];
+        const contrast = bg.length && (bg[3] ?? 1) === 1 ? (Math.max(lum(fg), lum(bg)) + 0.05) / (Math.min(lum(fg), lum(bg)) + 0.05) : null;
+        return {
+          href: a?.getAttribute("href"),
+          text: a?.textContent.trim(),
+          leadsToMain: !!target && (target.tagName === "MAIN" || !!target.closest("main") || !!target.querySelector?.("main")) && target.id !== "top",
+          // A sighted keyboard user must see it: opaque, inside the window, on top and readable.
+          shown: cs.opacity === "1" && r.width > 0 && r.height > 0 && r.top >= 0 && r.left >= 0 && r.bottom <= innerHeight && r.right <= innerWidth && (hit === a || a.contains(hit)),
+          contrast: contrast && Math.round(contrast * 100) / 100,
+        };
+      });
+      const at = `at ${viewport.width}px`;
+      if (!first.leadsToMain) violations.push({ target: "index.html", detail: `first Tab stop ${at} is ${first.href} "${first.text}", not a skip link to <main>` });
+      else {
+        if (!first.shown) violations.push({ target: "index.html", detail: `the skip link is not visible when focused ${at}` });
+        if (!(first.contrast >= 4.5)) violations.push({ target: "index.html", detail: `the focused skip link's text contrast is ${first.contrast ?? "unknown (transparent background)"} ${at}` });
+        await page.keyboard.press("Enter");
+        await page.keyboard.press("Tab");
+        first.next_tab_in_main = await page.evaluate(() => !!document.activeElement?.closest("main"));
+        if (!first.next_tab_in_main) violations.push({ target: "index.html", detail: `after following the skip link ${at}, Tab does not continue inside <main>` });
+      }
+      evidence.skip_link[viewport.width] = first;
+    } finally {
+      await context.close();
     }
-    evidence.skip_link = first;
-    judge("skip-link", violations);
-  } finally {
-    await context.close();
   }
+  judge("skip-link", violations);
 });
 
 // A FontFaceSet with no faces makes document.fonts.check() return true, so "check" proves nothing

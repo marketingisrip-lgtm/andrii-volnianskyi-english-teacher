@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
-import { REPO, ROOT, readSite, sitePages, isHidden, isLocalRef, cssUrls, sniffImage } from "./lib/html.mjs";
+import { REPO, ROOT, DECORATIVE, readSite, sitePages, isHidden, isLocalRef, cssUrls, sniffImage } from "./lib/html.mjs";
 import { buildToTemp } from "./lib/build.mjs";
 import { judge, ratchet, register } from "./lib/register.mjs";
 import { pdfFacts } from "./lib/pdf.mjs";
@@ -163,7 +163,11 @@ test("aria-label sits only on elements that can be named", () => {
   const UNNAMED_ROLES = new Set(["none", "presentation", "generic"]);
   const violations = [];
   for (const { page, doc } of pages)
-    for (const e of doc.elements.filter((e) => e.attrs["aria-label"] && GENERIC.has(e.name) && (!e.attrs.role || UNNAMED_ROLES.has(e.attrs.role)))) {
+    for (const e of doc.elements.filter((e) => {
+      // A role attribute is a fallback list; the first token is the one browsers apply.
+      const role = (e.attrs.role || "").trim().split(/\s+/)[0].toLowerCase();
+      return e.attrs["aria-label"] && (UNNAMED_ROLES.has(role) || (!role && GENERIC.has(e.name)));
+    })) {
       const target = `${e.name}${e.attrs.class ? "." + e.attrs.class.split(/\s+/).join(".") : ""}`;
       if (!violations.some((v) => v.target === target)) violations.push({ target, detail: `${page}:${e.line} aria-label="${e.attrs["aria-label"]}" with ${e.attrs.role ? `role="${e.attrs.role}", which cannot be named` : "no role"}` });
     }
@@ -183,8 +187,6 @@ test("<time> elements carry a machine-readable date", () => {
   ratchet("time-datetime", count, 'add datetime="YYYY" or "YYYY-MM"; a period has no single value, so write it as two <time> elements or as text in a <span>');
 });
 
-// Arrows, geometric shapes and dingbats are read out by name ("north east arrow") even inside other text.
-const DECORATIVE = /[\u2190-\u21FF\u25A0-\u25FF\u2600-\u27BF]/u;
 test("decorative glyphs are hidden from screen readers", () => {
   // An element whose whole text is symbols (◎, ▢, ·…) is an icon: screen readers announce it by name.
   const violations = [];
@@ -196,19 +198,32 @@ test("decorative glyphs are hidden from screen readers", () => {
       const target = `${el.name} "${t.value}"`;
       if (!violations.some((v) => v.target === target)) violations.push({ target, detail: `${page}:${t.line} not aria-hidden` });
     }
+  // Labels are read aloud too. (CSS-generated content and entities are caught from the accessibility tree at runtime.)
+  for (const { page, doc } of pages)
+    for (const e of doc.elements)
+      for (const attr of ["aria-label", "title"])
+        if (DECORATIVE.test(e.attrs[attr] || "") && !isHidden(e)) violations.push({ target: `${e.name}[${attr}] "${e.attrs[attr]}"`, detail: `${page}:${e.line}` });
   judge("glyph-hidden", violations);
 });
 
 test("ARIA lists hold only list items, and list items sit in lists", () => {
   // A role="list" whose children are not items (or an item with no list) is read as broken structure.
+  // Plain <div>/<span> wrappers (or role none/generic) are transparent: the accessibility tree skips them.
+  const roleOf = (e) => (e.attrs.role || "").trim().split(/\s+/)[0].toLowerCase();
+  const transparent = (e) => ["none", "presentation", "generic"].includes(roleOf(e)) || (!roleOf(e) && ["div", "span"].includes(e.name));
+  const isItem = (e) => roleOf(e) === "listitem" || (e.name === "li" && !roleOf(e));
+  const isList = (e) => roleOf(e) === "list" || (["ul", "ol"].includes(e.name) && !roleOf(e));
   const problems = [];
   for (const { page, doc } of pages) {
     const childrenOf = (el) => doc.elements.filter((c) => c.ancestors.at(-1) === el);
-    for (const e of doc.elements) {
-      if (e.attrs.role === "list")
-        for (const c of childrenOf(e)) if (c.attrs["aria-hidden"] !== "true" && c.attrs.role !== "listitem" && c.name !== "li") problems.push(`${page}:${c.line} <${c.name}> inside role="list" is not a list item`);
-      const parent = e.ancestors.at(-1);
-      if (e.attrs.role === "listitem" && !(parent?.attrs.role === "list" || ["ul", "ol"].includes(parent?.name))) problems.push(`${page}:${e.line} role="listitem" outside a list`);
+    const owned = (el) => childrenOf(el).flatMap((c) => (c.attrs["aria-hidden"] === "true" ? [] : transparent(c) && !isItem(c) ? owned(c) : [c]));
+    for (const e of doc.elements.filter((e) => roleOf(e) === "list")) {
+      for (const c of owned(e)) if (!isItem(c)) problems.push(`${page}:${c.line} <${c.name}> inside role="list" is not a list item`);
+      for (const t of doc.text) if (t.ancestors.at(-1) === e) problems.push(`${page}:${t.line} bare text "${t.value.slice(0, 30)}" inside role="list"`);
+    }
+    for (const e of doc.elements.filter((e) => roleOf(e) === "listitem")) {
+      const owner = [...e.ancestors].reverse().find((a) => !transparent(a));
+      if (!owner || !isList(owner)) problems.push(`${page}:${e.line} role="listitem" outside a list`);
     }
   }
   assert.deepEqual(problems, [], "give the list only role=listitem (or <li>) children, aria-hidden decoration aside");

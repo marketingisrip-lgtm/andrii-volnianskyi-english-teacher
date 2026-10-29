@@ -19,6 +19,10 @@ const MUTANTS = [
   ["a reveal that fails closed when script.js cannot run", edit("index.html", 'if (/\\/script\\.js(\\?|#|$)/.test(src)) root.classList.remove("js");', ""), "sections stay readable when script.js cannot run"],
   ["a skip link that stays invisible when focused", edit("styles.css", ".skip-link:focus{opacity:1;pointer-events:auto}", ".skip-link:focus{pointer-events:auto}"), "a skip link leads to the main content"],
   ["a badge and its period run together for screen readers", edit("index.html", '<div class="period">2024–2026</div>', '<span class="period">2024–2026</span>'), "screen readers do not run neighbouring labels together"],
+  ["bold text that runs into its neighbour for screen readers", edit("index.html", '>Download CV <span aria-hidden="true">', '>Download<strong>CV</strong> <span aria-hidden="true">'), "screen readers do not run neighbouring labels together"],
+  ["a skip link whose text matches its background", edit("styles.css", "background:var(--paper);color:var(--ink);font-weight:800", "background:var(--paper);color:var(--paper);font-weight:800"), "a skip link leads to the main content"],
+  ["a skip link hidden when focused on narrow screens", append("styles.css", "@media(max-width:480px){.skip-link:focus{opacity:0}}"), "a skip link leads to the main content"],
+  ["a decorative glyph added by CSS", append("styles.css", '.text-link:after{content:"→"}'), "screen readers hear no decorative glyphs"],
   ["a new third-party script", edit("index.html", '<script src="script.js"></script>', '<script src="https://cdn.example.com/tracker.js"></script><script src="script.js"></script>'), "the page makes no third-party requests beyond the registered ones"],
   ["a 7px label", append("styles.css", ".metrics span{font-size:7px}"), "no visible text is smaller than 10px"],
 ];

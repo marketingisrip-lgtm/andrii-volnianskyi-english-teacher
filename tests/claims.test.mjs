@@ -66,13 +66,21 @@ test("datetime values and accessible-only labels agree with the visible text", (
   const problems = [];
   for (const e of doc.elements) {
     const shown = textOf(e);
+    // Whole numbers as the page writes them: "90" must not pass just because "84/90" is shown.
+    const shownNumbers = shown.match(NUMBER) || [];
     if (e.name === "time" && e.attrs.datetime) {
-      const [, year, month] = e.attrs.datetime.match(/^(\d{4})(?:-(\d{2}))?/) || [];
-      if (!year || !shown.includes(year) || (month && !shown.toLowerCase().includes(MONTHS[Number(month) - 1])))
-        problems.push(`line ${e.line}: datetime="${e.attrs.datetime}" but the text reads "${shown}"`);
+      const m = e.attrs.datetime.match(/^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?(?:[T ](\d{2}:\d{2}))?/);
+      const [, year, month, day, time] = m || [];
+      const ok =
+        m &&
+        (shownNumbers.includes(year) || new RegExp(`['’]${year.slice(2)}\\b`).test(shown)) &&
+        (!month || shown.toLowerCase().includes(MONTHS[Number(month) - 1] ?? "?")) &&
+        (!day || shownNumbers.includes(String(Number(day)))) &&
+        (!time || shown.includes(time));
+      if (!ok) problems.push(`line ${e.line}: datetime="${e.attrs.datetime}" but the text reads "${shown}"`);
     }
     for (const attr of ["aria-label", "title"])
-      for (const n of (e.attrs[attr] || "").match(NUMBER) || []) if (!shown.includes(n)) problems.push(`line ${e.line}: ${attr}="${e.attrs[attr]}" says ${n}, which the element does not show`);
+      for (const n of (e.attrs[attr] || "").match(NUMBER) || []) if (!shownNumbers.includes(n)) problems.push(`line ${e.line}: ${attr}="${e.attrs[attr]}" says ${n}, which the element does not show`);
   }
   assert.deepEqual(problems, [], "make the hidden value match what visitors read, or add the number to the ledger and the visible text");
 });
