@@ -43,11 +43,13 @@ after(async () => {
 async function open(contextOptions) {
   const context = await browser.newContext(contextOptions);
   const page = await context.newPage();
-  const log = { console: [], pageErrors: [], failed: [] };
+  const log = { console: [], pageErrors: [], failed: [], external: [] };
   await page.route("**/*", (route) => {
     const url = route.request().url();
     if (url.startsWith(site.url)) return route.continue();
-    if (!evidence.external_requests_blocked.includes(new URL(url).origin)) evidence.external_requests_blocked.push(new URL(url).origin);
+    const { origin } = new URL(url);
+    if (!log.external.includes(origin)) log.external.push(origin);
+    if (!evidence.external_requests_blocked.includes(origin)) evidence.external_requests_blocked.push(origin);
     return route.abort();
   });
   page.on("console", (m) => m.type() === "error" && !/ERR_FAILED|net::/.test(m.text()) && log.console.push(m.text()));
@@ -62,9 +64,9 @@ async function open(contextOptions) {
  * sweep with smooth scrolling flaked under CPU load: the page could pass a short section between
  * frames, so its IntersectionObserver never fired. Returns what never settled.
  */
-async function scrollThrough(page) {
+async function scrollThrough(page, selector = ".reveal, [data-count]") {
   const unsettled = [];
-  for (const sel of await page.$$eval(".reveal, [data-count]", (els) => els.map((e, i) => (e.dataset.probe = String(i), `[data-probe="${i}"]`)))) {
+  for (const sel of await page.$$eval(selector, (els) => els.map((e, i) => (e.dataset.probe = String(i), `[data-probe="${i}"]`)))) {
     await page.$eval(sel, (el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
     const settled = await page
       .waitForFunction((s) => {
@@ -74,7 +76,7 @@ async function scrollThrough(page) {
         return el.textContent === `${el.dataset.count}${suffix}`;
       }, sel, { timeout: 4000 })
       .then(() => true, () => false);
-    if (!settled) unsettled.push(await page.$eval(sel, (el) => el.id || el.className || el.dataset.count));
+    if (!settled) unsettled.push(await page.$eval(sel, (el) => (el.id ? `#${el.id}` : el.classList.length ? `.${el.classList[0]}` : `[data-count="${el.dataset.count}"]`)));
   }
   return unsettled;
 }
@@ -232,10 +234,12 @@ test("a skip link leads to the main content", async () => {
 
 // A FontFaceSet with no faces makes document.fonts.check() return true, so "check" proves nothing
 // when the stylesheet never loaded. Require loaded faces, and report NOT RUN when the font host
-// is unreachable instead of passing.
+// is unreachable instead of passing. The probe runs inside the test: a top-level await between
+// tests makes node:test run the after() hook early when --test-name-pattern skips the earlier ones.
 const FONT_FAMILIES = ["Manrope", "Playfair Display", "DM Mono"];
-const fontsReachable = await fetch("https://fonts.googleapis.com/css2?family=Manrope", { signal: AbortSignal.timeout(5000) }).then((r) => r.ok, () => false);
-test("declared web fonts actually load", { skip: fontsReachable ? false : "NOT RUN: fonts.googleapis.com is unreachable from this machine" }, async () => {
+test("declared web fonts actually load", async (t) => {
+  const reachable = await fetch("https://fonts.googleapis.com/css2?family=Manrope", { signal: AbortSignal.timeout(5000) }).then((r) => r.ok, () => false);
+  if (!reachable) return t.skip("NOT RUN: fonts.googleapis.com is unreachable from this machine");
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   try {
     const page = await context.newPage();
@@ -346,4 +350,77 @@ test("text meets WCAG 1.4.3 contrast against what is actually rendered behind it
     }
   }
   judge("contrast", violations);
+});
+
+// Short phones, phones held sideways, and 1280x1024 at 400% zoom (a 320x256 CSS viewport).
+const SHORT_VIEWPORTS = [{ width: 320, height: 568 }, { width: 568, height: 320 }, { width: 320, height: 256 }];
+test("every section reveals on short and zoomed screens (WCAG 1.4.10)", async () => {
+  const violations = [];
+  evidence.short_viewports = {};
+  for (const viewport of SHORT_VIEWPORTS) {
+    const { context, page } = await open({ viewport });
+    try {
+      const never = await scrollThrough(page, ".reveal");
+      // Keyboard focus still enters a section that never appears, onto controls nobody can see.
+      const focusable = await page.$$eval(".reveal:not(.is-visible)", (els) => els.reduce((n, el) => n + el.querySelectorAll("a[href], button, input, select, textarea").length, 0));
+      evidence.short_viewports[`${viewport.width}x${viewport.height}`] = { never_revealed: never, focusable_controls_inside: focusable };
+      // The viewport is part of the target, so a registered section cannot hide a regression at another size.
+      for (const t of never) violations.push({ target: `${t} at ${viewport.width}x${viewport.height}`, detail: "never reveals" });
+    } finally {
+      await context.close();
+    }
+  }
+  judge("reveal-short-viewport", violations);
+});
+
+test("phones and tablets get in-page navigation", async () => {
+  const missing = [];
+  for (const width of [390, 768]) {
+    const { context, page } = await open({ viewport: { width, height: 844 } });
+    try {
+      const ways = await page.$$eval("header a[href^='#'], nav a[href^='#'], header button[aria-expanded], nav button[aria-expanded]", (els) =>
+        els.filter((e) => e.offsetParent !== null && !/^#(top|main|content)?$/.test(e.getAttribute("href") ?? "x")).length);
+      if (!ways) missing.push(width);
+    } finally {
+      await context.close();
+    }
+  }
+  evidence.mobile_navigation_missing_at = missing;
+  judge("mobile-nav", missing.length ? [{ target: "in-page navigation below 800px", detail: `no visible section links or menu button at ${missing.join(" and ")}px` }] : []);
+});
+
+test("the page makes no third-party requests beyond the registered ones", async () => {
+  const { context, page, log } = await open({ viewport: { width: 1280, height: 900 } });
+  try {
+    await scrollThrough(page);
+    judge("third-party", log.external.map((origin) => ({ target: origin, detail: "requested while the page loads and scrolls" })));
+  } finally {
+    await context.close();
+  }
+});
+
+test("no visible text is smaller than 10px", async () => {
+  // A floor for labels; body copy has its own 14px check above.
+  const violations = [];
+  evidence.text_floor = {};
+  for (const width of [390, 1280]) {
+    const { context, page } = await open({ viewport: { width, height: 900 }, reducedMotion: "reduce" });
+    try {
+      const tiny = await page.evaluate(() => {
+        const out = [];
+        for (const el of document.querySelectorAll("body *")) {
+          const text = [...el.childNodes].filter((t) => t.nodeType === 3 && t.textContent.trim()).map((t) => t.textContent.trim()).join(" ");
+          if (!text || el.offsetParent === null || parseFloat(getComputedStyle(el).fontSize) >= 10) continue;
+          const host = el.parentElement?.closest("[class]");
+          out.push({ target: `${host ? `${host.tagName.toLowerCase()}.${host.classList[0]} ` : ""}${el.tagName.toLowerCase()}${[...el.classList].map((c) => "." + c).join("")}`, px: parseFloat(getComputedStyle(el).fontSize), text: text.slice(0, 24) });
+        }
+        return out;
+      });
+      evidence.text_floor[width] = tiny.map((t) => `${t.target} ${t.px}px "${t.text}"`);
+      for (const t of tiny) if (!violations.some((v) => v.target === t.target)) violations.push({ target: t.target, detail: `${t.px}px "${t.text}" at ${width}px` });
+    } finally {
+      await context.close();
+    }
+  }
+  judge("text-floor", violations);
 });

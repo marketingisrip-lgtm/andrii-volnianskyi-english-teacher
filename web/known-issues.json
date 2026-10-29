@@ -109,7 +109,6 @@
     {
       "id": "untokenised-colours",
       "check": "token-ratchet",
-      "target": "*.css",
       "limit": 154,
       "severity": "minor",
       "finding": "154 hard-coded hex colours outside :root against 26 var(--) uses across the 12 stylesheets, so the 9 tokens in styles.css govern little of the page.",
@@ -194,6 +193,116 @@
       "severity": "major",
       "finding": "The public score report image shows date of birth, test-taker ID, registration ID, score-report code and test-centre ID, and the repository is public too. The Grade and Yappi certificates show teacher names, certificate codes and QR codes, which is normal for verifiable certificates but is the owner's call.",
       "suggested_fix": "Publish a redacted copy (keep name, scores and test date; blur DOB and IDs) if the owner did not intend to publish these."
+    },
+    {
+      "id": "image-dimensions",
+      "check": "image-dimensions",
+      "limit": 17,
+      "severity": "minor",
+      "finding": "None of the 17 <img> elements declares width and height, so the layout shifts as each image arrives (cumulative layout shift). None uses loading=\"lazy\" either, so every certificate and logo loads before the first screen settles.",
+      "suggested_fix": "Add width and height (the file's intrinsic size; CSS still scales it) to each <img>, plus loading=\"lazy\" decoding=\"async\" below the first screen, and lower `limit` as they are fixed."
+    },
+    {
+      "id": "time-datetime",
+      "check": "time-datetime",
+      "limit": 9,
+      "severity": "minor",
+      "finding": "9 of the 13 <time> elements hold text such as \"Aug 2024\", \"2024–2026\" or \"Ongoing\" with no datetime attribute, so the dates are not machine-readable. The 4 plain years are valid as they are.",
+      "suggested_fix": "Add datetime=\"2024-08\" and similar; write a range as two <time> elements; drop <time> from \"Ongoing\". Lower `limit` as they are fixed."
+    },
+    {
+      "id": "glyph-icons-announced",
+      "check": "glyph-hidden",
+      "target": [
+        "span \"·\"",
+        "span \"↓\"",
+        "i \"◎\"",
+        "i \"▢\"",
+        "i \"▯\"",
+        "i \"▣\""
+      ],
+      "severity": "minor",
+      "finding": "Decorative glyphs are read aloud by screen readers: the arrow in \"Download CV ↓\" (announced as \"down arrow\"), the four teaching-identity and transfer icons (◎ ▢ ▯ ▣), and the dot in the \"AV·English\" wordmark.",
+      "suggested_fix": "Add aria-hidden=\"true\" to the icon <i> elements and the arrow; for the wordmark, either hide the dot or give the link aria-label=\"AV English, back to top\"."
+    },
+    {
+      "id": "motion-no-pause",
+      "check": "motion-pause",
+      "target": [
+        "paintDrift",
+        "orbFloat",
+        "portraitFloat",
+        "businessShift",
+        "pulsePoint"
+      ],
+      "severity": "minor",
+      "finding": "Five decorative animations run forever (painting drift, almond orb, portrait float, business-band shift, growth-path pulse) and the page has no control to pause them, which WCAG 2.2.2 (Level A) asks for. Visitors with the reduced-motion setting are covered: the CSS stops them. businessShift animates background-position on a large section, which repaints continuously.",
+      "suggested_fix": "Add a small \"Pause motion\" toggle that sets animation-play-state: paused on the page, or make the drifts run a few cycles and stop."
+    },
+    {
+      "id": "missing-social-meta",
+      "check": "social-meta",
+      "target": [
+        "og:title",
+        "og:description",
+        "og:image",
+        "canonical"
+      ],
+      "severity": "info",
+      "finding": "No Open Graph tags or canonical link, so a link shared on LinkedIn, Telegram or WhatsApp renders without a title card or image.",
+      "suggested_fix": "Add og:title, og:description, og:image (an absolute URL to a 1200×630 image) and <link rel=\"canonical\"> once the production URL is confirmed."
+    },
+    {
+      "id": "cv-pdf-image-only",
+      "check": "document-text",
+      "target": [
+        "assets/Andrii_Volnianskyi_CV.pdf",
+        "assets/Andrii_Volnianskyi_CV.pdf title"
+      ],
+      "severity": "major",
+      "finding": "The downloadable CV is two full-page pictures (1.4 MB) with no text layer: screen readers read nothing, search finds nothing, and recruiters' applicant-tracking systems cannot parse it. Its PDF title is the working file name \"…_CV_2026_vangogh_colobridge\", which viewers show in the tab.",
+      "suggested_fix": "Export the CV from its source as a text PDF (that also cuts the size) and set the document title to \"Andrii Volnianskyi — English Teacher CV\". Re-review it in web/privacy-review.json."
+    },
+    {
+      "id": "reveal-threshold-short-screens",
+      "check": "reveal-short-viewport",
+      "target": [
+        "#credentials at 568x320",
+        "#credentials at 320x256",
+        ".method-band at 320x256",
+        "#business at 320x256"
+      ],
+      "severity": "major",
+      "finding": "script.js reveals a section only once 16% of it is on screen (IntersectionObserver threshold 0.16), so a section taller than about six screen heights can never appear. On a phone held sideways (568×320) the credentials section, which is the site's evidence, stays invisible; at 400% zoom (320×256 CSS px) the method band and business section stay invisible too, and keyboard focus still moves onto the 5 links inside them. At 320×568 the credentials section is borderline (the baseline audit measured 0.158).",
+      "suggested_fix": "Reveal on any intersection (threshold 0 with a rootMargin such as \"0px 0px -10% 0px\") instead of a share of the section's height, and fix no-js-hidden-reveal in the same change."
+    },
+    {
+      "id": "no-mobile-nav",
+      "check": "mobile-nav",
+      "target": "in-page navigation below 800px",
+      "severity": "minor",
+      "finding": "Below 800 px the nav links are hidden (display:none) and nothing replaces them, so phones and tablets, 768 px included, scroll a page about 12,600 px tall at 390 px with no way to jump to a section.",
+      "suggested_fix": "Keep a compact row of the four section links on small screens, or add a menu button with aria-expanded."
+    },
+    {
+      "id": "google-fonts-third-party",
+      "check": "third-party",
+      "target": "https://fonts.googleapis.com",
+      "severity": "info",
+      "finding": "Fonts load from Google, which sends each visitor's IP address to a third party (a GDPR consideration for EU visitors) and adds a render-blocking cross-origin stylesheet. The runtime tests block it, so they measure the fallback fonts.",
+      "suggested_fix": "Self-host the faces in use (Manrope, Playfair Display, DM Mono) as WOFF2 under assets/fonts/."
+    },
+    {
+      "id": "tiny-label-text",
+      "check": "text-floor",
+      "target": [
+        "div.provider-mark small",
+        "article.growth-point span.grade-badge",
+        "div.business-projects span.industry"
+      ],
+      "severity": "minor",
+      "finding": "Labels that carry claims are 7–9 px: the provider names under the future-target marks (7 px), the \"Final grade A\" badges (9 px) and the industry tags on the company cards (9 px).",
+      "suggested_fix": "Raise them to at least 12 px; the 14 px floor for body copy stays."
     }
   ]
 }

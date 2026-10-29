@@ -617,6 +617,37 @@
       "status": "plan",
       "evidence": [],
       "note": "Labelled as a target."
+    },
+    {
+      "id": "narrative-before-teaching",
+      "text": "Before moving into English teaching, I built and led marketing",
+      "kind": "sequence",
+      "status": "conflict",
+      "evidence": [
+        {
+          "file": "index.html",
+          "says": "Experience timeline: Private English Tutor 2017 — 2021; the business section is headed 2018–now"
+        },
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 1,
+          "says": "Private English Tutor 2017 - 2021; Marketing Manager / Head of Marketing | 2018 - present"
+        }
+      ],
+      "note": "\"Before\" says marketing came first, but the page and the CV both date the teaching from 2017 and the marketing from 2018, and both run to now. A wording decision for the owner, for example \"Alongside teaching, I built and led marketing…\"."
+    },
+    {
+      "id": "logo-beinf",
+      "text": "beinf.ai logo",
+      "kind": "logo",
+      "status": "conflict",
+      "evidence": [
+        {
+          "file": "assets/companies/beinf.png",
+          "says": "A \"coxit\" wordmark, viewed at 8x; no Beinf or beinf.ai mark"
+        }
+      ],
+      "note": "Logos are claims: the Beinf card shows another company's mark, and its alt text says beinf.ai. The black mark is also hard to see on the dark card. The owner needs to supply the right logo or drop the image."
     }
   ],
   "ignore": [
