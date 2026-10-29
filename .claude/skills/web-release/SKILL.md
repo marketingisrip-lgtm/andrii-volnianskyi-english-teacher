@@ -19,6 +19,11 @@ This repo carries three hosting traces. Find out which one is live; do not assum
 - `server/index.js`: a Cloudflare Workers entry that serves the static assets;
 - `.openai/hosting.json`: an OpenAI-hosted project id.
 
+Observed on PR #4 (29 Oct 2026): the Netlify project **`sparkly-brigadeiros-2eebd1`** builds a deploy
+preview for every PR (`deploy-preview-<n>--sparkly-brigadeiros-2eebd1.netlify.app`) and posts
+"Pages changed", "Header rules" and "Redirect rules" checks. That makes Netlify the live pipeline.
+Confirm the production URL and the owning account before deploying.
+
 Run the account skill `account-check`. Read the config source, not the tool's summary. The
 Netlify config can cache several accounts, and `netlify status` shows only the active one. Then
 test the real operation: an account that can read and create sites can still get 403 on deploy.

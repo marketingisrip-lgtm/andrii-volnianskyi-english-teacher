@@ -92,7 +92,11 @@ view and the test waits for its end state, and it passed twice under deliberate 
 
 ## Unverified
 - The workflows and "specified tests" of the original import prompt.
-- Codex discovering `.agents/skills` and reading `agents/openai.yaml`: no Codex CLI or credentials here, and the docs host was blocked.
+- Codex discovering `.agents/skills` and reading `agents/openai.yaml`: no credentials here, installing
+  the Codex CLI was refused by the session's permission check, and the docs host was blocked.
+- The Netlify deploy previews for this PR: they built for `cd71285` and `7af01f0`, all check suites
+  completed without failure, and no deploy was run from this session. `netlify.app` is outside this
+  session's network allowlist, so the preview URLs were not probed.
 - `web-release` (deploys are owner-gated), `codex-handoff` and `handoff-verifier` (no handoff file to check),
   and `learning-page-gate` and `learning-page-examiner` on a real learning page (none in this repo).
 - Screen-reader behaviour, and text contrast over the painting backgrounds.
