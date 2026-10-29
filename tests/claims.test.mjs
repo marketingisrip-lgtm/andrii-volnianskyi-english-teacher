@@ -59,6 +59,24 @@ test("no claim is past its valid_until date unless marked stale", () => {
   assert.deepEqual(expired.map((c) => `${c.id} (valid_until ${c.valid_until})`), []);
 });
 
+// Text only machines and screen readers see is still a claim: it must say what the page shows.
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+const textOf = (el) => doc.text.filter((t) => t.ancestors.includes(el)).map((t) => t.value).join(" ");
+test("datetime values and accessible-only labels agree with the visible text", () => {
+  const problems = [];
+  for (const e of doc.elements) {
+    const shown = textOf(e);
+    if (e.name === "time" && e.attrs.datetime) {
+      const [, year, month] = e.attrs.datetime.match(/^(\d{4})(?:-(\d{2}))?/) || [];
+      if (!year || !shown.includes(year) || (month && !shown.toLowerCase().includes(MONTHS[Number(month) - 1])))
+        problems.push(`line ${e.line}: datetime="${e.attrs.datetime}" but the text reads "${shown}"`);
+    }
+    for (const attr of ["aria-label", "title"])
+      for (const n of (e.attrs[attr] || "").match(NUMBER) || []) if (!shown.includes(n)) problems.push(`line ${e.line}: ${attr}="${e.attrs[attr]}" says ${n}, which the element does not show`);
+  }
+  assert.deepEqual(problems, [], "make the hidden value match what visitors read, or add the number to the ledger and the visible text");
+});
+
 test("claim status summary", (t) => {
   const counts = {};
   for (const c of ledger.claims) counts[c.status] = (counts[c.status] || 0) + 1;

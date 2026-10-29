@@ -14,7 +14,11 @@ const MUTANTS = [
   ["reduced-motion visitors no longer see sections", edit("styles.css", "scroll-behavior:auto!important}.js .reveal{opacity:1;transform:none}}", "scroll-behavior:auto!important}}"), "reduced-motion visitors see every section without scrolling"],
   ["focus outline removed", append("styles.css", "a:focus,a:focus-visible,button:focus-visible{outline:none!important;box-shadow:none!important}"), "keyboard reaches every control and focus stays visible"],
   ["low-contrast body text", edit("styles.css", ".statement p:last-child{max-width:700px;font-size:18px;color:#59594f", ".statement p:last-child{max-width:700px;font-size:18px;color:#c4c2b4"), "text meets WCAG 1.4.3 contrast against what is actually rendered behind it"],
-  ["a stricter reveal threshold that more sections never meet", edit("script.js", "threshold: 0, rootMargin: '0px 0px -10% 0px'", "threshold: 0.3"), "every section reveals on short and zoomed screens (WCAG 1.4.10)"],
+  ["a stricter reveal threshold that more sections never meet", edit("script.js", "threshold: 0, rootMargin: '0px 0px -48px 0px'", "threshold: 0.3"), "every section reveals on short and zoomed screens (WCAG 1.4.10)"],
+  ["a percentage bottom margin that strands the last section", edit("script.js", "rootMargin: '0px 0px -48px 0px'", "rootMargin: '0px 0px -10% 0px'"), "every section reveals on short and zoomed screens (WCAG 1.4.10)"],
+  ["a reveal that fails closed when script.js cannot run", edit("index.html", 'if (/\\/script\\.js(\\?|#|$)/.test(src)) root.classList.remove("js");', ""), "sections stay readable when script.js cannot run"],
+  ["a skip link that stays invisible when focused", edit("styles.css", ".skip-link:focus{opacity:1;pointer-events:auto}", ".skip-link:focus{pointer-events:auto}"), "a skip link leads to the main content"],
+  ["a badge and its period run together for screen readers", edit("index.html", '<div class="period">2024–2026</div>', '<span class="period">2024–2026</span>'), "screen readers do not run neighbouring labels together"],
   ["a new third-party script", edit("index.html", '<script src="script.js"></script>', '<script src="https://cdn.example.com/tracker.js"></script><script src="script.js"></script>'), "the page makes no third-party requests beyond the registered ones"],
   ["a 7px label", append("styles.css", ".metrics span{font-size:7px}"), "no visible text is smaller than 10px"],
 ];

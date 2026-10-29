@@ -156,14 +156,16 @@ test("hard-coded colours do not grow (token ratchet)", () => {
 });
 
 test("aria-label sits only on elements that can be named", () => {
-  // ARIA forbids naming generic elements (div, span…) that have no role; screen readers ignore it.
+  // ARIA forbids naming generic elements (div, span…) that have no role, or a role that cannot be
+  // named (none, presentation, generic); screen readers ignore the label.
   // One judgement across all pages: a staged *-review.html copy shares its source page's defects.
   const GENERIC = new Set(["div", "span", "p", "b", "i", "em", "strong", "small", "time"]);
+  const UNNAMED_ROLES = new Set(["none", "presentation", "generic"]);
   const violations = [];
   for (const { page, doc } of pages)
-    for (const e of doc.elements.filter((e) => e.attrs["aria-label"] && GENERIC.has(e.name) && !e.attrs.role)) {
+    for (const e of doc.elements.filter((e) => e.attrs["aria-label"] && GENERIC.has(e.name) && (!e.attrs.role || UNNAMED_ROLES.has(e.attrs.role)))) {
       const target = `${e.name}${e.attrs.class ? "." + e.attrs.class.split(/\s+/).join(".") : ""}`;
-      if (!violations.some((v) => v.target === target)) violations.push({ target, detail: `${page}:${e.line} aria-label="${e.attrs["aria-label"]}" with no role` });
+      if (!violations.some((v) => v.target === target)) violations.push({ target, detail: `${page}:${e.line} aria-label="${e.attrs["aria-label"]}" with ${e.attrs.role ? `role="${e.attrs.role}", which cannot be named` : "no role"}` });
     }
   judge("aria-naming", violations);
 });
@@ -181,17 +183,35 @@ test("<time> elements carry a machine-readable date", () => {
   ratchet("time-datetime", count, 'add datetime="YYYY" or "YYYY-MM"; a period has no single value, so write it as two <time> elements or as text in a <span>');
 });
 
+// Arrows, geometric shapes and dingbats are read out by name ("north east arrow") even inside other text.
+const DECORATIVE = /[\u2190-\u21FF\u25A0-\u25FF\u2600-\u27BF]/u;
 test("decorative glyphs are hidden from screen readers", () => {
-  // An element whose whole text is symbols (◎, ▢, ★…) is an icon: screen readers announce it by name.
+  // An element whose whole text is symbols (◎, ▢, ·…) is an icon: screen readers announce it by name.
   const violations = [];
   for (const { page, doc } of pages)
     for (const t of doc.text) {
       const el = t.ancestors.at(-1);
-      if (!el || !/^[^\p{L}\p{N}]+$/u.test(t.value) || textOf(doc, el) !== t.value || isHidden(el)) continue;
+      const icon = /^[^\p{L}\p{N}]+$/u.test(t.value) && textOf(doc, el) === t.value;
+      if (!el || isHidden(el) || !(icon || DECORATIVE.test(t.value))) continue;
       const target = `${el.name} "${t.value}"`;
       if (!violations.some((v) => v.target === target)) violations.push({ target, detail: `${page}:${t.line} not aria-hidden` });
     }
   judge("glyph-hidden", violations);
+});
+
+test("ARIA lists hold only list items, and list items sit in lists", () => {
+  // A role="list" whose children are not items (or an item with no list) is read as broken structure.
+  const problems = [];
+  for (const { page, doc } of pages) {
+    const childrenOf = (el) => doc.elements.filter((c) => c.ancestors.at(-1) === el);
+    for (const e of doc.elements) {
+      if (e.attrs.role === "list")
+        for (const c of childrenOf(e)) if (c.attrs["aria-hidden"] !== "true" && c.attrs.role !== "listitem" && c.name !== "li") problems.push(`${page}:${c.line} <${c.name}> inside role="list" is not a list item`);
+      const parent = e.ancestors.at(-1);
+      if (e.attrs.role === "listitem" && !(parent?.attrs.role === "list" || ["ul", "ol"].includes(parent?.name))) problems.push(`${page}:${e.line} role="listitem" outside a list`);
+    }
+  }
+  assert.deepEqual(problems, [], "give the list only role=listitem (or <li>) children, aria-hidden decoration aside");
 });
 
 test("animations that run forever come with a pause control (WCAG 2.2.2)", () => {

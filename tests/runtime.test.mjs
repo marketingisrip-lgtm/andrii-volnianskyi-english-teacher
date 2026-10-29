@@ -40,7 +40,7 @@ after(async () => {
 });
 
 /** Open the page with third-party requests blocked, so results do not depend on the network. */
-async function open(contextOptions) {
+async function open(contextOptions, setup) {
   const context = await browser.newContext(contextOptions);
   const page = await context.newPage();
   const log = { console: [], pageErrors: [], failed: [], external: [] };
@@ -55,6 +55,7 @@ async function open(contextOptions) {
   page.on("console", (m) => m.type() === "error" && !/ERR_FAILED|net::/.test(m.text()) && log.console.push(m.text()));
   page.on("pageerror", (e) => log.pageErrors.push(String(e)));
   page.on("response", (r) => r.url().startsWith(site.url) && r.status() >= 400 && log.failed.push(`${r.status()} ${r.url()}`));
+  await setup?.(page);
   await page.goto(site.url, { waitUntil: "load" });
   return { context, page, log };
 }
@@ -174,6 +175,59 @@ test("no-JavaScript rendering matches web/known-issues.json", async () => {
   }
 });
 
+test("sections stay readable when script.js cannot run", async () => {
+  // The reveal hides sections until script.js shows them, so it must fail open, not closed.
+  const CASES = {
+    "script.js fails to load": (page) => page.route("**/script.js", (r) => r.abort()),
+    "script.js throws": (page) => page.route("**/script.js", (r) => r.fulfill({ contentType: "text/javascript", body: 'throw new Error("planted");' })),
+    "no IntersectionObserver": (page) => page.addInitScript(() => delete window.IntersectionObserver),
+  };
+  const violations = [];
+  evidence.reveal_fail_open = {};
+  for (const [name, setup] of Object.entries(CASES)) {
+    const { context, page } = await open({ viewport: { width: 1280, height: 900 } }, setup);
+    try {
+      const transparent = await page.$$eval(".reveal", (els) => els.filter((e) => getComputedStyle(e).opacity === "0").length);
+      evidence.reveal_fail_open[name] = { transparent_reveal_sections: transparent };
+      if (transparent) violations.push(`${name}: ${transparent} sections stay invisible`);
+    } finally {
+      await context.close();
+    }
+  }
+  assert.deepEqual(violations, []);
+});
+
+test("screen readers do not run neighbouring labels together", async () => {
+  // NVDA and JAWS in Chromium read a container's text leaves as one string. Two leaves with no space
+  // between them (badge "C2" then "2024–2026") are heard as one word ("C22024–2026"). Read the real
+  // accessibility tree: ignored nodes (plain spans) are hoisted, as platform APIs do.
+  const { context, page } = await open({ viewport: { width: 1280, height: 900 } });
+  try {
+    const cdp = await context.newCDPSession(page);
+    const { nodes } = await cdp.send("Accessibility.getFullAXTree");
+    const byId = new Map(nodes.map((n) => [n.nodeId, n]));
+    const leaves = (n) => (n.childIds || []).flatMap((id) => { const k = byId.get(id); return !k ? [] : k.ignored ? leaves(k) : [k]; });
+    const violations = [];
+    for (const n of nodes) {
+      if (n.ignored || n.role?.value === "StaticText") continue;
+      const kids = leaves(n);
+      // A link or button with its own label is announced by that label, not by its text leaves.
+      const text = kids.filter((k) => k.role?.value === "StaticText").map((k) => k.name?.value ?? "").join("");
+      if (["link", "button"].includes(n.role?.value) && (n.name?.value ?? "") !== text) continue;
+      for (let i = 1; i < kids.length; i++) {
+        const [a, b] = [kids[i - 1], kids[i]];
+        if (a.role?.value !== "StaticText" || b.role?.value !== "StaticText") continue;
+        const [x, y] = [a.name?.value ?? "", b.name?.value ?? ""];
+        if (!/\s$/.test(x) && !/^\s/.test(y)) violations.push({ target: `${n.role?.value}: "${x}" + "${y}"`, detail: "read as one word" });
+      }
+    }
+    evidence.text_runs = violations.map((v) => v.target);
+    judge("text-runs", violations);
+  } finally {
+    await context.close();
+  }
+});
+
 test("keyboard reaches every control and focus stays visible", async () => {
   const { context, page } = await open({ viewport: { width: 1280, height: 900 } });
   try {
@@ -232,10 +286,27 @@ test("a skip link leads to the main content", async () => {
     const first = await page.evaluate(() => {
       const a = document.activeElement;
       const target = a?.getAttribute("href")?.startsWith("#") ? document.querySelector(a.getAttribute("href")) : null;
-      return { href: a?.getAttribute("href"), text: a?.textContent.trim(), leadsToMain: !!target && (target.tagName === "MAIN" || !!target.closest("main") || !!target.querySelector?.("main")) && target.id !== "top" };
+      const r = a.getBoundingClientRect();
+      const hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+      return {
+        href: a?.getAttribute("href"),
+        text: a?.textContent.trim(),
+        leadsToMain: !!target && (target.tagName === "MAIN" || !!target.closest("main") || !!target.querySelector?.("main")) && target.id !== "top",
+        // A sighted keyboard user must see it: opaque, inside the window and not covered.
+        shown: getComputedStyle(a).opacity === "1" && r.width > 0 && r.height > 0 && r.top >= 0 && r.left >= 0 && r.bottom <= innerHeight && r.right <= innerWidth && (hit === a || a.contains(hit)),
+      };
     });
+    const violations = [];
+    if (!first.leadsToMain) violations.push({ target: "index.html", detail: `first Tab stop is ${first.href} "${first.text}", not a skip link to <main>` });
+    else {
+      if (!first.shown) violations.push({ target: "index.html", detail: "the skip link is not visible when focused" });
+      await page.keyboard.press("Enter");
+      await page.keyboard.press("Tab");
+      first.next_tab_in_main = await page.evaluate(() => !!document.activeElement?.closest("main"));
+      if (!first.next_tab_in_main) violations.push({ target: "index.html", detail: "after following the skip link, Tab does not continue inside <main>" });
+    }
     evidence.skip_link = first;
-    judge("skip-link", first.leadsToMain ? [] : [{ target: "index.html", detail: `first Tab stop is ${first.href} "${first.text}", not a skip link to <main>` }]);
+    judge("skip-link", violations);
   } finally {
     await context.close();
   }
@@ -364,9 +435,14 @@ test("text meets WCAG 1.4.3 contrast against what is actually rendered behind it
 // Short phones, phones held sideways, and 1280x1024 at 400% zoom (a 320x256 CSS viewport).
 const SHORT_VIEWPORTS = [{ width: 320, height: 568 }, { width: 568, height: 320 }, { width: 320, height: 256 }];
 test("every section reveals on short and zoomed screens (WCAG 1.4.10)", async () => {
+  // Also a window as tall as the whole page, where nothing scrolls: a percentage bottom margin on the
+  // observer once left the last section hidden there.
+  const probe = await open({ viewport: { width: 1280, height: 900 } });
+  const pageHeight = await probe.page.evaluate(() => document.documentElement.scrollHeight);
+  await probe.context.close();
   const violations = [];
   evidence.short_viewports = {};
-  for (const viewport of SHORT_VIEWPORTS) {
+  for (const viewport of [...SHORT_VIEWPORTS, { width: 1280, height: pageHeight }]) {
     const { context, page } = await open({ viewport });
     try {
       const never = await scrollThrough(page, ".reveal");

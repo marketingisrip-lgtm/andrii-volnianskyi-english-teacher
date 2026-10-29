@@ -33,8 +33,12 @@ because skipping it once cost a round of rework.
 - One stylesheet per feature (`growth-path.css`, `certificate-evidence.css`, …). A new one must be
   linked in `index.html` **and** added to the `build` script (the build test enforces this).
 - `.reveal` sections fade in on scroll. Their hidden start state is scoped to `.js`, which an inline
-  script in `<head>` sets, so the page reads fully without JavaScript; keep any new hidden-until-JS
-  state behind `.js` too (the no-JS checks fail otherwise).
+  script in `<head>` sets only when the reveal can run, and removes again if `script.js` fails to load
+  or throws: hidden-until-JS content must fail open. Keep any new hidden state behind `.js` (the no-JS
+  and "script.js cannot run" checks fail otherwise).
+- Neighbouring labels need a break screen readers can hear: plain `<span>`s are not separate objects
+  in the accessibility tree, so "C2" next to "2024–2026" is read as "C22024–2026". Use a block element
+  (`<div>`, `<p>`, `<li>`) for text that sits on its own line; the runtime suite reads the real tree.
 
 ## 2. Stage before replacing
 A redesign of a live section goes into `index-review.html` (or a branch) first. The Codex CAE-hub

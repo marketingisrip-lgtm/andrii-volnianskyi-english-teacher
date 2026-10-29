@@ -103,7 +103,7 @@
       "check": "contrast",
       "target": [
         "div.growth-point time",
-        "div.growth-point span.period"
+        "div.growth-point div.period"
       ],
       "severity": "minor",
       "finding": "Dates and periods on the growth-path cards (11 px) measure 4.46:1 against the card, just under the 4.5:1 AA minimum. The timeline depends on them.",
@@ -238,6 +238,30 @@
       "severity": "minor",
       "finding": "Labels that carry claims are 7–9 px: the provider names under the future-target marks (7 px), the \"Final grade A\" badges (9 px) and the industry tags on the company cards (9 px).",
       "suggested_fix": "Raise them to at least 12 px; the 14 px floor for body copy stays."
+    },
+    {
+      "id": "text-runs-together",
+      "check": "text-runs",
+      "target": [
+        "generic: \"Adult & group teaching\" + \"Business communication\"",
+        "generic: \"Business communication\" + \"International teams\"",
+        "generic: \"International teams\" + \"Digital lesson resources\"",
+        "generic: \"PPP\" + \"ESA\"",
+        "generic: \"ESA\" + \"TBL\"",
+        "generic: \"TBL\" + \"Skills-based\"",
+        "generic: \"Skills-based\" + \"Test–teach–test\"",
+        "article: \"Cloud infrastructure · B2B technology\" + \"Germany / Ukraine · 2021–now\"",
+        "article: \"AI & B2B technology\" + \"Ukraine / Europe · 2024–now\"",
+        "article: \"Home services · Construction\" + \"USA · 2023–2024\"",
+        "article: \"Home services · Plumbing\" + \"USA · earlier project\"",
+        "article: \"Consumer services · London\" + \"UK · 2024–2025\"",
+        "article: \"Automotive · Marketing consulting\" + \"Thailand · 2024\"",
+        "article: \"Manufacturing · Building materials\" + \"Ukraine · 2019–2021\"",
+        "article: \"Legal & professional services\" + \"Ukraine · 2018–2019\""
+      ],
+      "severity": "minor",
+      "finding": "Screen readers that read a container's text as one string (NVDA and JAWS in Chrome and Edge) hear neighbouring labels with no break between them: the teaching-value tags (\"Adult & group teachingBusiness communication…\"), the framework pills (\"PPPESATBL…\") and each company card's industry and location (\"…B2B technologyGermany / Ukraine · 2021–now\"). Plain <span>s are not separate objects in the accessibility tree, so their text is joined. Found by an independent review of the accessibility fixes, which introduced and then fixed the same defect on two growth-path cards.",
+      "suggested_fix": "Make the tag and pill groups lists (<ul> with <li>, list-style none) and put each card's industry and location in block elements (<div> or <p>); check the 390 and 1280 renders stay the same."
     }
   ]
 }
