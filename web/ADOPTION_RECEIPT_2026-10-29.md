@@ -5,6 +5,8 @@ this session. Every adopted workflow traces to a source listed below, and nothin
 stand in for the missing file. All adopted assets load natively in Claude Code, a fresh session
 reaches for the right skill in 23 of 23 routing evals, and every suite passes.
 
+Later the same day, seven of the registered defects were fixed in code; see the last section.
+
 ## Request
 > Read and execute this import prompt:
 > `/Users/andriyv/Documents/Codex/2026-09-03/ai-workflow-skills-cleanup/ENGLISH_WEB_DESIGN_HANDOFF_2026-10-27/CODEX_COMPLETION_2026-10-28/CLAUDE_IMPORT_PROMPT.md`
@@ -99,7 +101,7 @@ Corrections made during the session, each found by a check or a planted defect:
 | `--agent web-design-reviewer` | Opus 5.5 | 13-row measured closure table. Design **major**, accessibility **major**, consistency **minor**. It found the CPE badge at 2.39:1, the dates at 4.45:1 and the hero text over the painting (worst 1.76–2.41), and the reveal-test flake. All of these are now automated or registered. | $1.00 |
 | Routing evals, two runs of 22 and 23 queries | Sonnet | 13/22, then 23/23 (above) | one short session per query |
 
-## Findings for the owner (no site file was changed)
+## Findings for the owner (as first registered; see the follow-up for what has since been fixed)
 **Claims ledger, 52 entries:** 17 backed · 5 partial · 13 unbacked · 8 conflict · 6 stale · 3 plan.
 - **Stale:** "CAE scheduled September 2026" (four places); PTE 84/90 shown as current (the
   report's validity ended 24 Aug 2026).
@@ -165,3 +167,65 @@ has a suggested fix in `web/known-issues.json`.
    and adopt only the difference. The owner does the first step; a session does the rest.
 2. **Owner decisions** on the stale and conflicting claims and on the known issues above.
    Each has a suggested fix in `web/known-issues.json` or a note in `web/claims-ledger.json`.
+
+## Follow-up the same day: code-only accessibility fixes
+Asked whether to fix the defects that need no owner decision, Andrii answered "Up to u". Commits
+`6f0befc`, `dccf1c9` and `710d217` on this PR fix them and remove seven register entries:
+`glyph-icons-announced`, `time-datetime`, `image-dimensions`, `no-skip-link`, `no-js-hidden-reveal`,
+`reveal-threshold-short-screens` and `aria-label-generic-growth-path`.
+
+| Defect | What changed |
+|---|---|
+| Decorative glyphs read aloud | `aria-hidden` on the six icon glyphs and the arrows in "Download CV" and "LinkedIn"; the wordmark links are named "AV English, back to top" |
+| Dates not machine-readable | `datetime` on Aug 2024, Jul 2026, Sep 2026 and "Target · 2028". The five periods and "Ongoing" are styled text, not `<time>`, because HTML has no single value for a range and the claims ledger quotes their text exactly |
+| Images without size | intrinsic `width`/`height` on all 17; `loading="lazy"` on all but the hero portrait. `decoding="async"` was tried and dropped: it made full-page captures miss images at random |
+| No skip link | "Skip to content", the first Tab stop: invisible until focused, then 14.1:1 and on top; Tab continues inside `<main>` |
+| Sections hidden without JavaScript, or never revealed on short or zoomed screens | the hidden state applies only under `.js`, which a `<head>` script sets when the reveal can run and removes if `script.js` fails to load or throws; sections reveal on any intersection with a 48 px margin |
+| `aria-label` on a role-less `<div>` | the growth path is `role="list"` with seven `role="listitem"` cards; the period in each card is a block, so screen readers do not hear "C22024–2026" |
+
+**Independent review.** Two rounds of read-only lenses, with two skeptics re-checking every finding:
+- Round one: five lenses (accessibility tree, behaviour, markup, claims and text, suites), 25 agents.
+  Eight findings held:
+  - the badge and period run together for screen readers;
+  - the reveal failing closed when `script.js` cannot run, found by three lenses;
+  - `datetime` and `aria-label` text outside every claims check;
+  - nothing checked that the skip link is visible;
+  - nothing guarded the ARIA list structure;
+  - a `-10%` observer margin stranded the last section in a window as tall as the page.
+
+  All eight are fixed in `dccf1c9`, each with a check and a planted defect. Two reports of the
+  "LinkedIn ↗" arrow were refuted only because it predated the change; it is fixed anyway.
+- Round two: three lenses (the fail-open gate, an audit of the new checks, an accessibility-tree
+  regression pass), 31 agents. Eight blind spots in the new checks held, none a site defect, for
+  example a label number matched by substring. All eight are fixed in `710d217`, again with planted
+  defects. Six other findings were refuted.
+- A third round was not run.
+
+**New register entry.** `text-runs-together`: 15 older label pairs that screen readers join into one
+word, such as the framework pills ("PPPESATBL…") and each company card's industry and location. The
+new accessibility-tree check found them; they are owner-visible markup changes, so they are
+registered.
+
+**Renders.** Full-page captures in reduced motion, compared with the page before the change:
+- 320 px: identical.
+- 390 and 768 px: 27 px differ, at most 2/255, on the edge of the "Let's talk" pill.
+- 1280 px: 18 px differ, the "LinkedIn ↗" arrow now drawn as its own text run.
+
+Two captures of the final code are identical to each other.
+
+**Numbers.** Generated by `npm run receipt:numbers` at `710d217` (clean tree):
+
+| Suite | Tests | Pass | Fail | Skipped |
+|---|---|---|---|---|
+| site | 27 | 27 | 0 | 0 |
+| claims | 6 | 6 | 0 | 0 |
+| skill/agent lint | 20 | 20 | 0 | 0 |
+| planted defects, static: 44 caught, 2 allowed changes green, clean copy green | 47 | 47 | 0 | 0 |
+| runtime | 20 | 20 | 0 | 0 |
+| planted defects, browser | 19 | 19 | 0 | 0 |
+
+Known issues now: 28 (8 major, 15 minor, 5 info). Claims: 52, unchanged.
+
+**Not verified.** Real screen-reader speech (NVDA, JAWS, VoiceOver, TalkBack). The accessibility tree
+and Chromium's platform text were read instead. Firefox and WebKit, and back-forward cache
+navigation, were not tested either.
