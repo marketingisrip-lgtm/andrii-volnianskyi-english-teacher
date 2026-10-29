@@ -87,6 +87,13 @@ for (const width of WIDTHS) {
     try {
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       const hiddenReveals = await scrollThrough(page);
+      // Images below the first screen load lazily, as a visitor scrolls. Bring each rendered one into
+      // view and wait for it, or the evidence shot shows blank frames where certificates should be.
+      for (const sel of await page.$$eval("img", (els) => els.filter((e) => e.offsetParent !== null).map((e, i) => (e.dataset.img = String(i), `img[data-img="${i}"]`))))
+        await page.$eval(sel, (el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
+      const unloaded = await page
+        .waitForFunction(() => [...document.images].every((i) => i.offsetParent === null || (i.complete && i.naturalWidth > 0)), null, { timeout: 15000 })
+        .then(() => [], () => page.$$eval("img", (els) => els.filter((i) => i.offsetParent !== null && !(i.complete && i.naturalWidth > 0)).map((i) => i.getAttribute("src"))));
       const counters = await page.$$eval("[data-count]", (els) => els.map((e) => ({ target: e.dataset.count, text: e.textContent })));
       const shot = path.join(OUT, "screens", `w${width}.png`);
       await page.evaluate(() => scrollTo(0, 0));
@@ -94,6 +101,7 @@ for (const width of WIDTHS) {
       evidence.widths[width] = {
         horizontal_overflow_px: overflow,
         hidden_reveal_sections: hiddenReveals,
+        images_not_loaded: unloaded,
         counters,
         console_errors: log.console,
         page_errors: log.pageErrors,
@@ -106,6 +114,7 @@ for (const width of WIDTHS) {
       assert.deepEqual(log.failed, [], "local requests that failed");
       assert.ok(overflow <= 1, `page scrolls sideways by ${overflow}px`);
       assert.deepEqual(hiddenReveals, [], "sections or counters that never reached their end state when scrolled into view");
+      assert.deepEqual(unloaded, [], "images that never loaded when scrolled into view");
       const STATIC = { 8: "8+", 4: "4", 30: "30%", 280: "280%" };
       for (const c of counters) assert.equal(c.text, STATIC[c.target] ?? c.text, `counter ${c.target} ended at "${c.text}"`);
     } finally {

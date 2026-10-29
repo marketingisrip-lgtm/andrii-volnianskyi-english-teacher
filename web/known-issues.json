@@ -83,22 +83,6 @@
       "suggested_fix": "Recompress to <300 KB; the background is decorative."
     },
     {
-      "id": "no-js-hidden-reveal",
-      "check": "no-js-visibility",
-      "target": "styles.css .reveal",
-      "severity": "major",
-      "finding": ".reveal{opacity:0} applies even without JavaScript, so every section except the hero stays invisible when script.js does not run (JS disabled, script error, some crawlers). Only prefers-reduced-motion restores it.",
-      "suggested_fix": "Scope the hidden state to a class that script.js adds first, e.g. document.documentElement.classList.add('js') and .js .reveal{opacity:0}."
-    },
-    {
-      "id": "no-skip-link",
-      "check": "skip-link",
-      "target": "index.html",
-      "severity": "minor",
-      "finding": "The first Tab stop is the 'AV·English' wordmark (#top), not a skip link to <main>. The header/nav/main/footer landmarks already satisfy WCAG 2.4.1 Bypass Blocks; the owner's accessibility skill still rates a missing skip link 'Serious (before launch)'.",
-      "suggested_fix": "Add <a class=\"skip-link\" href=\"#approach\">Skip to content</a> (or give <main> an id) as the first element of <body>, visually hidden until focused."
-    },
-    {
       "id": "small-body-text",
       "check": "text-size",
       "target": "index.html",
@@ -117,15 +101,18 @@
     {
       "id": "contrast-growth-dates",
       "check": "contrast",
-      "target": "article.growth-point time",
+      "target": [
+        "div.growth-point time",
+        "div.growth-point span.period"
+      ],
       "severity": "minor",
-      "finding": "Dates on the growth-path cards (11 px) measure 4.46:1 against the card, just under the 4.5:1 AA minimum. The timeline depends on them.",
+      "finding": "Dates and periods on the growth-path cards (11 px) measure 4.46:1 against the card, just under the 4.5:1 AA minimum. The timeline depends on them.",
       "suggested_fix": "Darken the date colour slightly (for example #8a6212) or raise the size."
     },
     {
       "id": "contrast-cpe-badge",
       "check": "contrast",
-      "target": "article.growth-point span.level",
+      "target": "div.growth-point span.level",
       "severity": "major",
       "finding": "The CPE target's level badge is white on #d99d1e: 2.39:1 for 12 px bold text (AA needs 4.5:1). Found by the web-design-reviewer agent and confirmed by this check.",
       "suggested_fix": "Use --ink text on the gold badge (about 6:1) or a darker gold."
@@ -137,14 +124,6 @@
       "severity": "minor",
       "finding": "The forward-plan years (2027, 2028; 11 px) measure 3.99:1.",
       "suggested_fix": "Darken the colour or raise the size."
-    },
-    {
-      "id": "aria-label-generic-growth-path",
-      "check": "aria-naming",
-      "target": "div.growth-path",
-      "severity": "minor",
-      "finding": "aria-label=\"Learning pathway from C1 to CPE\" sits on a <div> with no role. ARIA does not allow naming a generic element, so screen readers will likely ignore it, and the order in time is shown only by position on the curve.",
-      "suggested_fix": "Make the path an <ol> with <li> points (it keeps its aria-label), or add role=\"list\" and role=\"listitem\"."
     },
     {
       "id": "contrast-hero-over-painting",
@@ -195,37 +174,6 @@
       "suggested_fix": "Publish a redacted copy (keep name, scores and test date; blur DOB and IDs) if the owner did not intend to publish these."
     },
     {
-      "id": "image-dimensions",
-      "check": "image-dimensions",
-      "limit": 17,
-      "severity": "minor",
-      "finding": "None of the 17 <img> elements declares width and height, so the layout shifts as each image arrives (cumulative layout shift). None uses loading=\"lazy\" either, so every certificate and logo loads before the first screen settles.",
-      "suggested_fix": "Add width and height (the file's intrinsic size; CSS still scales it) to each <img>, plus loading=\"lazy\" decoding=\"async\" below the first screen, and lower `limit` as they are fixed."
-    },
-    {
-      "id": "time-datetime",
-      "check": "time-datetime",
-      "limit": 9,
-      "severity": "minor",
-      "finding": "9 of the 13 <time> elements hold text such as \"Aug 2024\", \"2024–2026\" or \"Ongoing\" with no datetime attribute, so the dates are not machine-readable. The 4 plain years are valid as they are.",
-      "suggested_fix": "Add datetime=\"2024-08\" and similar; write a range as two <time> elements; drop <time> from \"Ongoing\". Lower `limit` as they are fixed."
-    },
-    {
-      "id": "glyph-icons-announced",
-      "check": "glyph-hidden",
-      "target": [
-        "span \"·\"",
-        "span \"↓\"",
-        "i \"◎\"",
-        "i \"▢\"",
-        "i \"▯\"",
-        "i \"▣\""
-      ],
-      "severity": "minor",
-      "finding": "Decorative glyphs are read aloud by screen readers: the arrow in \"Download CV ↓\" (announced as \"down arrow\"), the four teaching-identity and transfer icons (◎ ▢ ▯ ▣), and the dot in the \"AV·English\" wordmark.",
-      "suggested_fix": "Add aria-hidden=\"true\" to the icon <i> elements and the arrow; for the wordmark, either hide the dot or give the link aria-label=\"AV English, back to top\"."
-    },
-    {
       "id": "motion-no-pause",
       "check": "motion-pause",
       "target": [
@@ -264,19 +212,6 @@
       "suggested_fix": "Export the CV from its source as a text PDF (that also cuts the size) and set the document title to \"Andrii Volnianskyi — English Teacher CV\". Re-review it in web/privacy-review.json."
     },
     {
-      "id": "reveal-threshold-short-screens",
-      "check": "reveal-short-viewport",
-      "target": [
-        "#credentials at 568x320",
-        "#credentials at 320x256",
-        ".method-band at 320x256",
-        "#business at 320x256"
-      ],
-      "severity": "major",
-      "finding": "script.js reveals a section only once 16% of it is on screen (IntersectionObserver threshold 0.16), so a section taller than about six screen heights can never appear. On a phone held sideways (568×320) the credentials section, which is the site's evidence, stays invisible; at 400% zoom (320×256 CSS px) the method band and business section stay invisible too, and keyboard focus still moves onto the 5 links inside them. At 320×568 the credentials section is borderline (the baseline audit measured 0.158).",
-      "suggested_fix": "Reveal on any intersection (threshold 0 with a rootMargin such as \"0px 0px -10% 0px\") instead of a share of the section's height, and fix no-js-hidden-reveal in the same change."
-    },
-    {
       "id": "no-mobile-nav",
       "check": "mobile-nav",
       "target": "in-page navigation below 800px",
@@ -297,7 +232,7 @@
       "check": "text-floor",
       "target": [
         "div.provider-mark small",
-        "article.growth-point span.grade-badge",
+        "div.growth-point span.grade-badge",
         "div.business-projects span.industry"
       ],
       "severity": "minor",

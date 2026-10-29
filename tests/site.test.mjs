@@ -178,7 +178,7 @@ test("images declare their size, so the layout does not jump while they load", (
 const MACHINE_DATE = /^(?:\d{4,}(?:-\d{2}(?:-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?)?)?)?|--\d{2}-\d{2}|\d{4,}-W\d{2}|\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?|P(?=\d|T\d)(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?)$/;
 test("<time> elements carry a machine-readable date", () => {
   const count = shippedPages.flatMap((p) => p.doc.elements.filter((e) => e.name === "time" && !MACHINE_DATE.test((e.attrs.datetime ?? textOf(p.doc, e)).trim()))).length;
-  ratchet("time-datetime", count, 'add datetime="YYYY" or "YYYY-MM" (a range needs two <time> elements)');
+  ratchet("time-datetime", count, 'add datetime="YYYY" or "YYYY-MM"; a period has no single value, so write it as two <time> elements or as text in a <span>');
 });
 
 test("decorative glyphs are hidden from screen readers", () => {

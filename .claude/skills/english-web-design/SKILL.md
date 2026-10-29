@@ -32,8 +32,9 @@ because skipping it once cost a round of rework.
   grounds. Any new ground needs a contrast check for the text on it.
 - One stylesheet per feature (`growth-path.css`, `certificate-evidence.css`, …). A new one must be
   linked in `index.html` **and** added to the `build` script (the build test enforces this).
-- `.reveal` sections fade in on scroll. Content hidden without JS is a registered defect
-  (`no-js-hidden-reveal`); don't add more hidden-until-JS content.
+- `.reveal` sections fade in on scroll. Their hidden start state is scoped to `.js`, which an inline
+  script in `<head>` sets, so the page reads fully without JavaScript; keep any new hidden-until-JS
+  state behind `.js` too (the no-JS checks fail otherwise).
 
 ## 2. Stage before replacing
 A redesign of a live section goes into `index-review.html` (or a branch) first. The Codex CAE-hub

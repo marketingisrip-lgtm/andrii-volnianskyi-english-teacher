@@ -6,14 +6,15 @@ import assert from "node:assert/strict";
 import { runMutant, edit, append } from "./lib/mutant.mjs";
 
 const MUTANTS = [
-  ["a wide element that scrolls sideways", edit("index.html", "<main>", '<main><div style="width:1400px;height:1px"></div>'), "renders cleanly at 320px"],
+  ["a wide element that scrolls sideways", edit("index.html", '<main id="main">', '<main id="main"><div style="width:1400px;height:1px"></div>'), "renders cleanly at 320px"],
   ["a console error", append("script.js", '\nconsole.error("planted defect");\n'), "renders cleanly at 1280px"],
-  ["a broken image", edit("index.html", "<main>", '<main><img src="assets/missing.png" alt="Missing" />'), "renders cleanly at 768px"],
+  ["a broken image", edit("index.html", '<main id="main">', '<main id="main"><img src="assets/missing.png" alt="Missing" />'), "renders cleanly at 768px"],
+  ["an image that answers 200 but never renders", edit("index.html", '<main id="main">', '<main id="main"><img src="script.js" alt="Planted" width="10" height="10" />'), "renders cleanly at 390px"],
   ["script.js removed, so sections never reveal", edit("index.html", '<script src="script.js"></script>', ""), "renders cleanly at 390px"],
-  ["reduced-motion visitors no longer see sections", edit("styles.css", "scroll-behavior:auto!important}.reveal{opacity:1;transform:none}}", "scroll-behavior:auto!important}}"), "reduced-motion visitors see every section without scrolling"],
+  ["reduced-motion visitors no longer see sections", edit("styles.css", "scroll-behavior:auto!important}.js .reveal{opacity:1;transform:none}}", "scroll-behavior:auto!important}}"), "reduced-motion visitors see every section without scrolling"],
   ["focus outline removed", append("styles.css", "a:focus,a:focus-visible,button:focus-visible{outline:none!important;box-shadow:none!important}"), "keyboard reaches every control and focus stays visible"],
   ["low-contrast body text", edit("styles.css", ".statement p:last-child{max-width:700px;font-size:18px;color:#59594f", ".statement p:last-child{max-width:700px;font-size:18px;color:#c4c2b4"), "text meets WCAG 1.4.3 contrast against what is actually rendered behind it"],
-  ["a stricter reveal threshold that more sections never meet", edit("script.js", "threshold: 0.16", "threshold: 0.3"), "every section reveals on short and zoomed screens (WCAG 1.4.10)"],
+  ["a stricter reveal threshold that more sections never meet", edit("script.js", "threshold: 0, rootMargin: '0px 0px -10% 0px'", "threshold: 0.3"), "every section reveals on short and zoomed screens (WCAG 1.4.10)"],
   ["a new third-party script", edit("index.html", '<script src="script.js"></script>', '<script src="https://cdn.example.com/tracker.js"></script><script src="script.js"></script>'), "the page makes no third-party requests beyond the registered ones"],
   ["a 7px label", append("styles.css", ".metrics span{font-size:7px}"), "no visible text is smaller than 10px"],
 ];

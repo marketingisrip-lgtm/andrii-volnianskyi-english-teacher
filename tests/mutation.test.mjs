@@ -39,7 +39,7 @@ const MUTANTS = [
   ["put an unsourced number in alt text", edit("index.html", 'alt="Pearson PTE Academic score report"', 'alt="Pearson PTE Academic score report, 90/90"'), "every number and credential word on the page has a ledger entry"],
   ["name a generic element with aria-label", edit("index.html", '<div class="frameworks">', '<div class="frameworks" aria-label="Frameworks">'), "aria-label sits only on elements that can be named"],
   ["remove a claim but keep its ledger entry", edit("index.html", "<span>UK · 2024–2025</span>", "<span>UK</span>"), "every ledger entry is still on the page"],
-  ["add an image without width and height", edit("index.html", '<img src="assets/companies/beinf.png" alt="beinf.ai logo" />', '<img src="assets/companies/beinf.png" alt="beinf.ai logo" /><img src="assets/logos/yappi.png" alt="Yappi" />'), "images declare their size, so the layout does not jump while they load"],
+  ["add an image without width and height", edit("index.html", '<main id="main">', '<main id="main"><img src="assets/logos/yappi.png" alt="Yappi" />'), "images declare their size, so the layout does not jump while they load"],
   ["write a date a machine cannot read", edit("index.html", "<time>2022</time>", "<time>Spring 2022</time>"), "<time> elements carry a machine-readable date"],
   ["add an icon screen readers will announce", edit("index.html", "<b>CELTA into practice</b>", "<b>CELTA into practice</b><i>★</i>"), "decorative glyphs are hidden from screen readers"],
   ["add an animation that never stops", edit("growth-path.css", ".growth-path{", ".growth-path .y{animation:spin 3s linear infinite}@keyframes spin{to{transform:rotate(1turn)}}.growth-path{"), "animations that run forever come with a pause control (WCAG 2.2.2)"],
