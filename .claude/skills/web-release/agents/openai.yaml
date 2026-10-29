@@ -1,0 +1,5 @@
+interface:
+  display_name: "Web release"
+  short_description: "Owner-invoked deploy: account check, verify, preview, probe, promote, probe"
+policy:
+  allow_implicit_invocation: false

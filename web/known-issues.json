@@ -1,0 +1,127 @@
+{
+  "about": "Defects that the checks found but that need the owner's decision, because each fix deletes a file, recompresses an image or changes published content. tests/site.test.mjs passes on these and fails on anything new. An entry that stops reproducing also fails, so this list cannot go stale. Remove an entry in the same commit that fixes it.",
+  "checked_on": "2026-10-29",
+  "issues": [
+    {
+      "id": "invalid-image-gryphon-png",
+      "check": "asset-integrity",
+      "target": "assets/companies/gryphon-group.png",
+      "severity": "minor",
+      "finding": "A 79-byte HTTP error body ({\"status\":\"error\",\"code\":404,...}) saved with a .png name. The page does not reference it, but the build ships it.",
+      "suggested_fix": "Delete it (owner go-ahead: deleting files is owner-gated)."
+    },
+    {
+      "id": "invalid-image-gryphon-ico",
+      "check": "asset-integrity",
+      "target": "assets/companies/gryphon-group.ico",
+      "severity": "minor",
+      "finding": "Not an icon: it is a 160 KB HTML page (<!doctype html><html lang=\"uk\">..., third-party site markup) saved with an .ico name. The build ships it.",
+      "suggested_fix": "Delete it (owner go-ahead). If a Gryphon logo is wanted, download the real image and check it with this test."
+    },
+    {
+      "id": "unreferenced-gryphon-png",
+      "check": "asset-unreferenced",
+      "target": "assets/companies/gryphon-group.png",
+      "severity": "info",
+      "finding": "Not referenced by index.html, CSS or script.js, but shipped in dist/.",
+      "suggested_fix": "Delete together with invalid-image-gryphon-png."
+    },
+    {
+      "id": "unreferenced-gryphon-ico",
+      "check": "asset-unreferenced",
+      "target": "assets/companies/gryphon-group.ico",
+      "severity": "info",
+      "finding": "160 KB file (actually HTML, see invalid-image-gryphon-ico) that nothing references, shipped in dist/. The Gryphon card uses a text mark instead.",
+      "suggested_fix": "Delete, or use it in the Gryphon card."
+    },
+    {
+      "id": "unreferenced-pearson-pte",
+      "check": "asset-unreferenced",
+      "target": "assets/logos/pearson-pte.png",
+      "severity": "info",
+      "finding": "Alternative Pearson PTE logo that nothing references. The page uses assets/logos/pearson.png.",
+      "suggested_fix": "Delete or keep as a deliberate spare; either way, decide."
+    },
+    {
+      "id": "weight-portrait",
+      "check": "image-weight",
+      "target": "assets/andrii.png",
+      "severity": "major",
+      "finding": "1.17 MB PNG (959x1280) for the hero portrait, which is the largest above-the-fold request on mobile.",
+      "suggested_fix": "Export a ~600px-wide WebP/JPEG (<150 KB) and keep the PNG as the source outside assets/."
+    },
+    {
+      "id": "weight-cert-c2-part-1",
+      "check": "image-weight",
+      "target": "assets/certificates/general-english-c2-part-1.png",
+      "severity": "major",
+      "finding": "680 KB, 5263x3721 px, shown as a gallery thumbnail.",
+      "suggested_fix": "Ship a ~1200px thumbnail and link the full image."
+    },
+    {
+      "id": "weight-cert-c2-part-2",
+      "check": "image-weight",
+      "target": "assets/certificates/general-english-c2-part-2.png",
+      "severity": "major",
+      "finding": "688 KB, 5263x3721 px, shown as a gallery thumbnail.",
+      "suggested_fix": "As weight-cert-c2-part-1."
+    },
+    {
+      "id": "weight-cert-cae",
+      "check": "image-weight",
+      "target": "assets/certificates/cae-preparation-c1.png",
+      "severity": "major",
+      "finding": "700 KB, 5263x3721 px, shown as a gallery thumbnail.",
+      "suggested_fix": "As weight-cert-c2-part-1."
+    },
+    {
+      "id": "weight-starry-night",
+      "check": "image-weight",
+      "target": "assets/starry-night.jpg",
+      "severity": "minor",
+      "finding": "824 KB decorative background used by four CSS rules.",
+      "suggested_fix": "Recompress to <300 KB; the background is decorative."
+    },
+    {
+      "id": "no-js-hidden-reveal",
+      "check": "no-js-visibility",
+      "target": "styles.css .reveal",
+      "severity": "major",
+      "finding": ".reveal{opacity:0} applies even without JavaScript, so every section except the hero stays invisible when script.js does not run (JS disabled, script error, some crawlers). Only prefers-reduced-motion restores it.",
+      "suggested_fix": "Scope the hidden state to a class that script.js adds first, e.g. document.documentElement.classList.add('js') and .js .reveal{opacity:0}."
+    },
+    {
+      "id": "no-skip-link",
+      "check": "skip-link",
+      "target": "index.html",
+      "severity": "minor",
+      "finding": "The first Tab stop is the 'AV·English' wordmark (#top), not a skip link to <main>. The header/nav/main/footer landmarks already satisfy WCAG 2.4.1 Bypass Blocks; the owner's accessibility skill still rates a missing skip link 'Serious (before launch)'.",
+      "suggested_fix": "Add <a class=\"skip-link\" href=\"#approach\">Skip to content</a> (or give <main> an id) as the first element of <body>, visually hidden until focused."
+    },
+    {
+      "id": "small-body-text",
+      "check": "text-size",
+      "target": "index.html",
+      "severity": "minor",
+      "finding": "Body copy below the 14 px floor from the owner's google-cloud-design skill: growth-path cards 11 px, company and professional-value text 12 px, footer line 12 px, method and transfer cards 13 px (390 and 1280 px widths). Timeline and education text is 14 px.",
+      "suggested_fix": "Raise card copy to at least 14 px (16 px is the stated base) and re-check card heights at 390 px."
+    },
+    {
+      "id": "untokenised-colours",
+      "check": "token-ratchet",
+      "target": "*.css",
+      "limit": 154,
+      "severity": "minor",
+      "finding": "154 hard-coded hex colours outside :root against 26 var(--) uses across the 12 stylesheets, so the 9 tokens in styles.css govern little of the page.",
+      "suggested_fix": "Move repeated literals onto tokens section by section, and lower `limit` in the same commit. The ratchet fails if the count rises or falls without the limit following."
+    },
+    {
+      "id": "pii-pte-report",
+      "check": "personal-data",
+      "target": "assets/certificates/pte-academic-score-report.png",
+      "severity": "major",
+      "finding": "The public score report image shows date of birth, test-taker ID, registration ID, score-report code and test-centre ID, and the repository is public too. The Grade and Yappi certificates show teacher names, certificate codes and QR codes, which is normal for verifiable certificates but is the owner's call.",
+      "suggested_fix": "Publish a redacted copy (keep name, scores and test date; blur DOB and IDs) if the owner did not intend to publish these."
+    }
+  ]
+}

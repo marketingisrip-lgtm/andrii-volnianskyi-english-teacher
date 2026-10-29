@@ -1,0 +1,652 @@
+{
+  "about": "Provenance ledger for every factual claim on index.html. A claim's status records what in-repo evidence shows, not whether the claim is true. tests/claims.test.mjs fails when the page shows a number or credential word that no entry covers, when an entry's text has left the page, when cited evidence is missing, or when a valid_until date has passed without the entry being marked stale.",
+  "checked_on": "2026-10-29",
+  "checked_by": "Claude Code adoption session (evidence read directly: CV PDF pages 1-2 rendered, five certificate images)",
+  "statuses": {
+    "backed": "An in-repo evidence file states it.",
+    "partial": "Evidence covers part of the claim; the note says which part is missing.",
+    "conflict": "Evidence sources disagree with the page or with each other.",
+    "unbacked": "No in-repo evidence. May still be true; the owner must supply a source or reword.",
+    "stale": "Was backed or planned, but its date has passed; the wording needs the owner's update.",
+    "plan": "A future target that the page labels as a target."
+  },
+  "claims": [
+    {
+      "id": "pte-score",
+      "text": "84/90",
+      "kind": "score",
+      "status": "stale",
+      "evidence": [
+        {
+          "file": "assets/certificates/pte-academic-score-report.png",
+          "says": "Overall 84; Test Date 24 Aug 2024; Valid Until 24 Aug 2026"
+        }
+      ],
+      "valid_until": "2026-08-24",
+      "note": "The score itself is backed. The score report's validity ended on 24 Aug 2026, so present-tense uses (hero chip, 'verified PTE Academic C1') read as current. Add the test date or 'valid to Aug 2026'."
+    },
+    {
+      "id": "pte-verified",
+      "text": "verified PTE Academic C1",
+      "kind": "credential",
+      "status": "stale",
+      "evidence": [
+        {
+          "file": "assets/certificates/pte-academic-score-report.png",
+          "says": "Overall 84; Valid Until 24 Aug 2026; no CEFR level printed on the report"
+        },
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 1,
+          "says": "84/90 Verified C1"
+        }
+      ],
+      "valid_until": "2026-08-24",
+      "note": "The score is backed by the report. 'C1' appears only in the CV, because the report prints no CEFR level. The report's validity ended on 24 Aug 2026."
+    },
+    {
+      "id": "pte-subscores",
+      "text": "L74 · R90 · S87 · W80",
+      "kind": "score",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/certificates/pte-academic-score-report.png",
+          "says": "Listening 74, Reading 90, Speaking 87, Writing 80"
+        }
+      ]
+    },
+    {
+      "id": "pte-date",
+      "text": "Aug 2024",
+      "kind": "date",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/certificates/pte-academic-score-report.png",
+          "says": "Test Date 24 Aug 2024"
+        }
+      ]
+    },
+    {
+      "id": "celta-hours-hero",
+      "text": "140 hours · July 2026",
+      "kind": "hours",
+      "status": "partial",
+      "evidence": [
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 1,
+          "says": "CELTA: completing July 2026 (no hours stated)"
+        }
+      ],
+      "note": "July 2026 matches the CV's planned completion. '140 hours' appears in no repo evidence. No CELTA certificate or result is in the repo, although July 2026 has passed."
+    },
+    {
+      "id": "celta-hours-path",
+      "text": "140 hours · methodology into classroom practice",
+      "kind": "hours",
+      "status": "unbacked",
+      "evidence": [],
+      "note": "See celta-hours-hero."
+    },
+    {
+      "id": "celta-date-path",
+      "text": "Jul 2026",
+      "kind": "date",
+      "status": "partial",
+      "evidence": [
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 1,
+          "says": "CELTA: completing July 2026"
+        }
+      ],
+      "note": "The CV (updated July 2026) gives July 2026 as the planned completion. That date has passed and the page presents CELTA as done, but no completion certificate or result is in the repo."
+    },
+    {
+      "id": "cae-scheduled-hero",
+      "text": "CAE scheduled",
+      "kind": "status",
+      "status": "stale",
+      "evidence": [
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 1,
+          "says": "CAE scheduled Sep 2026"
+        }
+      ],
+      "valid_until": "2026-09-30",
+      "note": "September 2026 has passed. The page still says 'scheduled'; update to taken / result pending / result."
+    },
+    {
+      "id": "cae-month-hero",
+      "text": "September 2026",
+      "kind": "date",
+      "status": "stale",
+      "evidence": [
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 1,
+          "says": "CAE scheduled Sep 2026"
+        }
+      ],
+      "valid_until": "2026-09-30",
+      "note": "See cae-scheduled-hero."
+    },
+    {
+      "id": "cae-path",
+      "text": "Sep 2026",
+      "kind": "date",
+      "status": "stale",
+      "evidence": [
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 2,
+          "says": "CAE exam - September 2026"
+        }
+      ],
+      "valid_until": "2026-09-30",
+      "note": "See cae-scheduled-hero."
+    },
+    {
+      "id": "cae-path-status",
+      "text": "Exam scheduled",
+      "kind": "status",
+      "status": "stale",
+      "evidence": [
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 2,
+          "says": "CAE exam - September 2026"
+        }
+      ],
+      "valid_until": "2026-09-30",
+      "note": "See cae-scheduled-hero."
+    },
+    {
+      "id": "teaching-start",
+      "text": "2017",
+      "kind": "date",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 1,
+          "says": "2017 Teaching journey; 2017 - 2021 Private English Tutor"
+        }
+      ]
+    },
+    {
+      "id": "advanced-hours-metric",
+      "text": "624h",
+      "kind": "hours",
+      "status": "conflict",
+      "evidence": [
+        {
+          "file": "assets/certificates/general-english-c2-part-1.png",
+          "says": "General English C2 Proficiency: Course 1 Part 1, 96 academic hours, issued May 2026"
+        },
+        {
+          "file": "assets/certificates/general-english-c2-part-2.png",
+          "says": "General English C2 Proficiency: Course 1, 108 academic hours, issued June 2024"
+        },
+        {
+          "file": "assets/certificates/cae-preparation-c1.png",
+          "says": "Cambridge Exam Preparation C1 Advanced (CAE), 72 academic hours, issued August 2024"
+        },
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 2,
+          "says": "General English C2: 184 academic hours total, score 97%; CAE Preparation C1: 72 academic hours"
+        }
+      ],
+      "note": "The certificates in the repo add up to 96 + 108 + 72 = 276 academic hours, and the CV states 184 + 72 = 256. Neither source shows 624h or 552h of C2 study. The sources also disagree with each other: the CV's 184 h C2 ('two courses taken in parallel') against the certificates' 96 + 108 = 204 h, issued in June 2024 and May 2026."
+    },
+    {
+      "id": "advanced-hours-identity",
+      "text": "624 hours of advanced C2/CAE development plus 60+ individual native-speaker-topic lessons.",
+      "kind": "hours",
+      "status": "conflict",
+      "evidence": [],
+      "note": "Repeats advanced-hours-metric (624h) and individual-lessons (60+)."
+    },
+    {
+      "id": "advanced-hours-path",
+      "text": "624 hours of advanced English",
+      "kind": "hours",
+      "status": "conflict",
+      "evidence": [],
+      "note": "See advanced-hours-metric."
+    },
+    {
+      "id": "advanced-hours-split",
+      "text": "552h repeated C2 study + 72h CAE preparation",
+      "kind": "hours",
+      "status": "conflict",
+      "evidence": [
+        {
+          "file": "assets/certificates/cae-preparation-c1.png",
+          "says": "72 academic hours"
+        }
+      ],
+      "note": "72h CAE is backed. 552h C2 is not: certificates show 96h + 108h, and the CV says 184h."
+    },
+    {
+      "id": "advanced-period",
+      "text": "2024–2026",
+      "kind": "date",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/certificates/general-english-c2-part-2.png",
+          "says": "issued June 2024"
+        },
+        {
+          "file": "assets/certificates/general-english-c2-part-1.png",
+          "says": "issued May 2026"
+        }
+      ]
+    },
+    {
+      "id": "grade-c2-final-grade",
+      "text": "Final grade A",
+      "where": {
+        "class": "c2"
+      },
+      "kind": "grade",
+      "status": "conflict",
+      "evidence": [
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 2,
+          "says": "General English C2 ... score 97%"
+        }
+      ],
+      "note": "The Grade certificates show no grade. The CV gives 'score 97%', not 'grade A'."
+    },
+    {
+      "id": "cae-prep-hours",
+      "text": "CAE preparation · 72h · advanced pathway evidence",
+      "kind": "hours",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/certificates/cae-preparation-c1.png",
+          "says": "72 academic hours, August 2024"
+        }
+      ]
+    },
+    {
+      "id": "c2-part1-caption",
+      "text": "General English C2 · verified course evidence",
+      "kind": "credential",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/certificates/general-english-c2-part-1.png",
+          "says": "General English C2 Proficiency: Course 1 Part 1, 96 academic hours, May 2026"
+        }
+      ]
+    },
+    {
+      "id": "c2-part2-caption",
+      "text": "General English C2 · Part 2",
+      "kind": "credential",
+      "status": "conflict",
+      "evidence": [
+        {
+          "file": "assets/certificates/general-english-c2-part-2.png",
+          "says": "General English C2 Proficiency: Course 1 (not 'Part 2'), 108 academic hours, June 2024"
+        }
+      ],
+      "note": "The caption says 'Part 2' but the certificate says 'Course 1'. Its alt text ('General English C2 certificate, Course 1') matches the certificate."
+    },
+    {
+      "id": "alt-c2-part1",
+      "text": "General English C2 certificate, Course 1 Part 1",
+      "kind": "credential",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/certificates/general-english-c2-part-1.png",
+          "says": "General English C2 Proficiency: Course 1 Part 1"
+        }
+      ]
+    },
+    {
+      "id": "alt-c2-course1",
+      "text": "General English C2 certificate, Course 1",
+      "kind": "credential",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/certificates/general-english-c2-part-2.png",
+          "says": "General English C2 Proficiency: Course 1"
+        }
+      ]
+    },
+    {
+      "id": "alt-yappi-three",
+      "text": "Yappi Business English certificate, one of three completed courses",
+      "kind": "credential",
+      "status": "partial",
+      "evidence": [
+        {
+          "file": "assets/certificates/yappi-business-english.png",
+          "says": "one Advanced Level course certificate"
+        }
+      ],
+      "note": "As yappi-three-courses: one of the three certificates is in the repo."
+    },
+    {
+      "id": "individual-lessons",
+      "text": "60+",
+      "kind": "count",
+      "status": "unbacked",
+      "evidence": [],
+      "note": "Not in the CV and no evidence in the repo."
+    },
+    {
+      "id": "yappi-hours",
+      "text": "100 hours of Business English",
+      "kind": "hours",
+      "status": "partial",
+      "evidence": [
+        {
+          "file": "assets/certificates/yappi-business-english.png",
+          "says": "Advanced Level of Business English course; Final grade A (98); 33 lessons, 50 studying hours; August 16, 2022"
+        },
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 2,
+          "says": "Business English - Advanced: 66 lessons / 100 hours, final grade A (98)"
+        }
+      ],
+      "note": "The one certificate on the page shows 50h. The CV states 100h. The other two course certificates are not in the repo."
+    },
+    {
+      "id": "yappi-year",
+      "text": "2022",
+      "kind": "date",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/certificates/yappi-business-english.png",
+          "says": "August 16, 2022"
+        }
+      ]
+    },
+    {
+      "id": "yappi-final-grade",
+      "text": "Final grade A",
+      "where": {
+        "class": "c1"
+      },
+      "kind": "grade",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/certificates/yappi-business-english.png",
+          "says": "Final grade is A (98)"
+        }
+      ]
+    },
+    {
+      "id": "yappi-three-courses",
+      "text": "Three Yappi courses completed · course-specific evidence below",
+      "kind": "credential",
+      "status": "partial",
+      "evidence": [
+        {
+          "file": "assets/certificates/yappi-business-english.png",
+          "says": "one Advanced Level course certificate"
+        }
+      ],
+      "note": "One of the three courses has a certificate in the repo."
+    },
+    {
+      "id": "kittera",
+      "text": "2026 — now",
+      "kind": "date",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 1,
+          "says": "2026 - present English Teacher - KITTERA Private Lyceum"
+        }
+      ]
+    },
+    {
+      "id": "ecademy",
+      "text": "2023 — 2024",
+      "kind": "date",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 1,
+          "says": "2023 - 2024 English Teacher - eCademy"
+        }
+      ]
+    },
+    {
+      "id": "private-tutor",
+      "text": "2017 — 2021",
+      "kind": "date",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 1,
+          "says": "2017 - 2021 Private English Tutor"
+        }
+      ]
+    },
+    {
+      "id": "marketing-span",
+      "text": "International professional background · 2018–now",
+      "kind": "date",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 1,
+          "says": "Marketing Manager / Head of Marketing | 2018 - present"
+        }
+      ]
+    },
+    {
+      "id": "marketing-years",
+      "text": "8+",
+      "kind": "count",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 1,
+          "says": "2018 - present"
+        }
+      ],
+      "note": "Derived: 2018 to 2026 is 8 years."
+    },
+    {
+      "id": "markets",
+      "text": "4",
+      "where": {
+        "class": "business-numbers"
+      },
+      "kind": "count",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 1,
+          "says": "Worked with companies and clients across Germany, the US, the UK and Thailand"
+        }
+      ]
+    },
+    {
+      "id": "sales-growth",
+      "text": "30%",
+      "kind": "percentage",
+      "status": "unbacked",
+      "evidence": [],
+      "note": "Not in the CV and no evidence in the repo. A performance figure like this needs a source the owner can cite."
+    },
+    {
+      "id": "roi",
+      "text": "280%",
+      "kind": "percentage",
+      "status": "unbacked",
+      "evidence": [],
+      "note": "Not in the CV and no evidence in the repo."
+    },
+    {
+      "id": "darwin-results",
+      "text": "B2B/B2C marketing for window manufacturing: positioning, dealer-network communications and results including 30% sales growth and 280% ROI improvement.",
+      "kind": "percentage",
+      "status": "unbacked",
+      "evidence": [],
+      "note": "Repeats sales-growth and roi."
+    },
+    {
+      "id": "almco-team",
+      "text": "Led a 10+ person performance-marketing team across Google, Bing, Meta, TikTok, analytics, SEO and video; supported sustained monthly sales growth.",
+      "kind": "count",
+      "status": "unbacked",
+      "evidence": [],
+      "note": "Team size is not in the CV."
+    },
+    {
+      "id": "colobridge-dates",
+      "text": "Germany / Ukraine · 2021–now",
+      "kind": "date",
+      "status": "unbacked",
+      "evidence": [],
+      "note": "Per-company dates are not in the CV, which only states 'Marketing Manager / Head of Marketing | 2018 - present'."
+    },
+    {
+      "id": "beinf-dates",
+      "text": "Ukraine / Europe · 2024–now",
+      "kind": "date",
+      "status": "unbacked",
+      "evidence": [],
+      "note": "As colobridge-dates."
+    },
+    {
+      "id": "coolcat-dates",
+      "text": "USA · 2023–2024",
+      "kind": "date",
+      "status": "unbacked",
+      "evidence": [],
+      "note": "As colobridge-dates."
+    },
+    {
+      "id": "ironfree-dates",
+      "text": "UK · 2024–2025",
+      "kind": "date",
+      "status": "unbacked",
+      "evidence": [],
+      "note": "As colobridge-dates."
+    },
+    {
+      "id": "cardigit-dates",
+      "text": "Thailand · 2024",
+      "kind": "date",
+      "status": "unbacked",
+      "evidence": [],
+      "note": "As colobridge-dates."
+    },
+    {
+      "id": "darwin-dates",
+      "text": "Ukraine · 2019–2021",
+      "kind": "date",
+      "status": "unbacked",
+      "evidence": [],
+      "note": "As colobridge-dates."
+    },
+    {
+      "id": "gryphon-dates",
+      "text": "Ukraine · 2018–2019",
+      "kind": "date",
+      "status": "unbacked",
+      "evidence": [],
+      "note": "As colobridge-dates."
+    },
+    {
+      "id": "law-degree",
+      "text": "National University “Odesa Law Academy” · 2013–2019",
+      "kind": "credential",
+      "status": "backed",
+      "evidence": [
+        {
+          "file": "assets/Andrii_Volnianskyi_CV.pdf",
+          "page": 2,
+          "says": "Master's degree in Law, National University 'Odesa Law Academy' | 2013-2019"
+        }
+      ]
+    },
+    {
+      "id": "trinity-target",
+      "text": "2027",
+      "where": {
+        "class": "target-grid"
+      },
+      "kind": "date",
+      "status": "plan",
+      "evidence": [],
+      "note": "Labelled 'Forward plan'."
+    },
+    {
+      "id": "cpe-target",
+      "text": "2028",
+      "where": {
+        "class": "target-grid"
+      },
+      "kind": "date",
+      "status": "plan",
+      "evidence": [],
+      "note": "Labelled 'Forward plan'."
+    },
+    {
+      "id": "cpe-path-target",
+      "text": "Target · 2028",
+      "kind": "date",
+      "status": "plan",
+      "evidence": [],
+      "note": "Labelled as a target."
+    }
+  ],
+  "ignore": [
+    {
+      "text": "01",
+      "where": {
+        "class": "method-grid"
+      },
+      "reason": "Ordinal label, not a claim."
+    },
+    {
+      "text": "02",
+      "where": {
+        "class": "method-grid"
+      },
+      "reason": "Ordinal label, not a claim."
+    },
+    {
+      "text": "03",
+      "where": {
+        "class": "method-grid"
+      },
+      "reason": "Ordinal label, not a claim."
+    },
+    {
+      "text": "04",
+      "where": {
+        "class": "method-grid"
+      },
+      "reason": "Ordinal label, not a claim."
+    }
+  ]
+}
