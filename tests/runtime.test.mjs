@@ -10,6 +10,7 @@ import path from "node:path";
 import { ROOT } from "./lib/html.mjs";
 import { buildToTemp, serve } from "./lib/build.mjs";
 import { register, judge } from "./lib/register.mjs";
+import { decodePng, luminance, ratio } from "./lib/png.mjs";
 
 const WIDTHS = [320, 390, 768, 1280]; // 320 = WCAG 1.4.10 reflow width
 const OUT = path.join(ROOT, "test-results");
@@ -271,54 +272,75 @@ test("body copy is at least 14px", async () => {
   judge("text-size", violations.slice(0, 1));
 });
 
-test("text on solid backgrounds meets WCAG 1.4.3 contrast", async () => {
+test("text meets WCAG 1.4.3 contrast against what is actually rendered behind it", async () => {
+  // Every text box is measured against the rendered pixels behind it: glyphs are hidden, the page is
+  // captured once, and the background under each line box is sampled. Reading background-color
+  // from ancestors missed text over the paintings, because the paintings are positioned siblings.
   const violations = [];
   evidence.contrast = {};
   for (const width of [390, 1280]) {
     const { context, page } = await open({ viewport: { width, height: 900 }, reducedMotion: "reduce" });
     try {
-      const result = await page.evaluate(() => {
+      // Reduced motion cuts every animation to one .01ms run but keeps its delay. Pausing animations
+      // instead froze the hero's delayed entrance at opacity 0, so "Contact me" read as 1.02:1.
+      const settled = await page.waitForFunction(() => document.getAnimations().every((a) => a.playState === "finished"), null, { timeout: 5000 }).then(() => true, () => false);
+      assert.ok(settled, `animations never settled: ${await page.evaluate(() => document.getAnimations().filter((a) => a.playState !== "finished").map((a) => a.animationName || a.constructor.name).join(", "))}`);
+      const boxes = await page.evaluate(() => {
         const parse = (c) => {
           const m = c.match(/rgba?\(([^)]+)\)/);
-          if (!m) return null;
           const [r, g, b, a = 1] = m[1].split(/[ ,/]+/).filter(Boolean).map(Number);
           return { r, g, b, a };
         };
-        const lum = ({ r, g, b }) => [r, g, b].map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)).reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
-        const over = (top, under) => ({ r: top.r * top.a + under.r * (1 - top.a), g: top.g * top.a + under.g * (1 - top.a), b: top.b * top.a + under.b * (1 - top.a), a: 1 });
         const out = [];
-        let overImage = 0;
         for (const el of document.querySelectorAll("body *")) {
-          const own = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join("").trim();
-          if (!own || el.offsetParent === null) continue;
+          const texts = [...el.childNodes].filter((t) => t.nodeType === 3 && t.textContent.trim());
+          if (!texts.length || el.offsetParent === null) continue;
           const cs = getComputedStyle(el);
-          const layers = [];
-          let image = false;
-          for (let a = el; a; a = a.parentElement) {
-            const st = getComputedStyle(a);
-            if (st.backgroundImage !== "none") { image = true; break; }
-            const c = parse(st.backgroundColor);
-            if (c && c.a > 0) { layers.push(c); if (c.a >= 1) break; }
-          }
-          // Text over a painting or gradient has no single background colour: counted, not judged.
-          if (image) { overImage++; continue; }
-          const bg = layers.reverse().reduce((acc, c) => over(c, acc), { r: 255, g: 255, b: 255, a: 1 });
-          let fg = parse(cs.color);
-          if (fg.a < 1) fg = over(fg, bg);
-          const [hi, lo] = [lum(fg), lum(bg)].sort((x, y) => y - x);
-          const ratio = (hi + 0.05) / (lo + 0.05);
+          if (parseFloat(cs.opacity) === 0 || cs.visibility === "hidden") continue;
           const px = parseFloat(cs.fontSize);
           const large = px >= 24 || (parseInt(cs.fontWeight) >= 700 && px >= 18.66);
-          if (ratio < (large ? 3 : 4.5)) {
-            const host = el.parentElement?.closest("[class]");
-            const target = `${host ? `${host.tagName.toLowerCase()}.${host.classList[0]} ` : ""}${el.tagName.toLowerCase()}${[...el.classList].map((c) => "." + c).join("")}`;
-            out.push({ target, detail: `"${own.slice(0, 20)}" ${ratio.toFixed(2)}:1 at ${px}px` });
-          }
+          const host = el.parentElement?.closest("[class]");
+          const target = `${host ? `${host.tagName.toLowerCase()}.${host.classList[0]} ` : ""}${el.tagName.toLowerCase()}${[...el.classList].map((c) => "." + c).join("")}`;
+          const rects = texts.flatMap((t) => { const r = document.createRange(); r.selectNodeContents(t); return [...r.getClientRects()]; }).filter((r) => r.width > 1 && r.height > 1);
+          if (rects.length) out.push({ target, label: texts.map((t) => t.textContent.trim()).join(" ").slice(0, 24), px, need: large ? 3 : 4.5, color: parse(cs.color), rects: rects.map((r) => ({ x: r.x + scrollX, y: r.y + scrollY, width: r.width, height: r.height })) });
         }
-        return { out, overImage };
+        return out;
       });
-      evidence.contrast[width] = { failing: result.out.map((v) => `${v.target}: ${v.detail}`), not_computed_over_image: result.overImage };
-      for (const v of result.out) if (!violations.some((x) => x.target === v.target)) violations.push(v);
+      assert.ok(boxes.length > 50, `only ${boxes.length} text boxes found: the probe is not seeing the page`);
+      await page.addStyleTag({ content: "body,body *,body *::before,body *::after{color:transparent!important;-webkit-text-fill-color:transparent!important;text-shadow:none!important}" });
+      // Capture viewport-sized windows while scrolling. A fullPage screenshot resizes the viewport to
+      // the page height, which reflows vh-based sections, so measured boxes no longer line up with it.
+      const stats = boxes.map(() => ({ total: 0, below: 0, worst: Infinity }));
+      const done = boxes.map((b) => b.rects.map(() => false));
+      const height = await page.evaluate(() => document.documentElement.scrollHeight);
+      for (let top = 0; top < height; top += 700) {
+        const at = await page.evaluate((y) => (scrollTo({ top: y, behavior: "instant" }), scrollY), top);
+        const shot = decodePng(await page.screenshot({ type: "png" }));
+        boxes.forEach((b, i) => b.rects.forEach((r, j) => {
+          if (done[i][j] || r.y < at || r.y + r.height > at + shot.height) return;
+          done[i][j] = true;
+          const fg = b.color;
+          const fgLum = fg.a >= 1 ? luminance(fg.r, fg.g, fg.b) : null;
+          for (let y = Math.floor(r.y - at); y < Math.min(shot.height, Math.ceil(r.y - at + r.height)); y++)
+            for (let x = Math.max(0, Math.floor(r.x)); x < Math.min(shot.width, Math.ceil(r.x + r.width)); x++) {
+              const o = (y * shot.width + x) * shot.bpp;
+              const [R, G, B] = [shot.data[o], shot.data[o + 1], shot.data[o + 2]];
+              const c = ratio(fgLum ?? luminance(fg.r * fg.a + R * (1 - fg.a), fg.g * fg.a + G * (1 - fg.a), fg.b * fg.a + B * (1 - fg.a)), luminance(R, G, B));
+              stats[i].total++;
+              if (c < b.need) stats[i].below++;
+              if (c < stats[i].worst) stats[i].worst = c;
+            }
+        }));
+      }
+      const failing = [];
+      boxes.forEach((b, i) => {
+        const { total, below, worst } = stats[i];
+        assert.ok(total > 0, `text box "${b.label}" sampled zero pixels`);
+        // Fail when more than 5% of the background under the text is below the threshold.
+        if (below / total > 0.05) failing.push({ target: b.target, detail: `"${b.label}" ${((below / total) * 100).toFixed(1)}% of background below ${b.need}:1, worst ${worst.toFixed(2)}:1 at ${b.px}px` });
+      });
+      evidence.contrast[width] = { text_boxes_sampled: boxes.length, failing: failing.map((v) => `${v.target}: ${v.detail}`) };
+      for (const v of failing) if (!violations.some((x) => x.target === v.target)) violations.push(v);
     } finally {
       await context.close();
     }

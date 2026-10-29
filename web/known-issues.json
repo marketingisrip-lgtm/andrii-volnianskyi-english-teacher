@@ -149,11 +149,43 @@
     },
     {
       "id": "contrast-hero-over-painting",
-      "check": "contrast-over-image",
-      "target": "header.hero .eyebrow, h1",
+      "check": "contrast",
+      "target": "div.hero-copy p.eyebrow",
       "severity": "major",
-      "finding": "Measured by the web-design-reviewer agent, which pixel-sampled the painting behind the text. The hero eyebrow (11 px, #bcdbe7) is below 4.5:1 over 19.6% of its box at 1280 px (worst 2.41) and 21.8% at 390 px (worst 1.76). The h1 drops to 2.21 at worst over the bright stars at 1280 px. Manual check: the runtime suite cannot compute contrast over images.",
+      "finding": "The hero eyebrow (11 px, #bcdbe7) sits over the Starry Night painting. Pixel-sampled by the runtime suite: 27.0% of the background under it is below 4.5:1 at 390 px (worst 1.76:1) and 23.3% at 1280 px (worst 2.29:1). The h1 passes the 3:1 large-text threshold over more than 95% of its box; its worst pixels reach about 2.2:1 over the brightest stars.",
       "suggested_fix": "Add a scrim behind .hero-copy (for example a #142441 gradient at about 70%) or move the art further right at desktop."
+    },
+    {
+      "id": "contrast-nav-over-painting",
+      "check": "contrast",
+      "target": "div.nav-links a",
+      "severity": "minor",
+      "finding": "At 1280 px the nav links (13 px, #e7f0fc) cross the bright swirls of the hero painting: 13.3% of the background under \"Credentials\" is below 4.5:1 (worst 2.38:1). The links are hidden below 800 px.",
+      "suggested_fix": "Extend the hero scrim to the top band, or darken the painting's left edge behind the nav."
+    },
+    {
+      "id": "contrast-method-over-painting",
+      "check": "contrast",
+      "target": "div.method-grid p",
+      "severity": "minor",
+      "finding": "At 1280 px the fourth method card's text (13 px, #d6e0ef) sits over the method-band painting: 10.1% of the background under \"ICQs, CCQs, monitoring…\" is below 4.5:1 (worst 3.01:1).",
+      "suggested_fix": "Raise the gradient's opacity over the right-hand columns or start the art further right."
+    },
+    {
+      "id": "contrast-project-industry",
+      "check": "contrast",
+      "target": "div.business-projects span.industry",
+      "severity": "minor",
+      "finding": "Industry pills on the company cards (9 px bold, #f4ca69 on a translucent pill over the almond-blossom band) measure 3.26–4.31:1 at worst; on most cards over 80% of the background is below 4.5:1, at both 390 and 1280 px.",
+      "suggested_fix": "Raise the pills to at least 12 px and give them an opaque dark fill, or darken the band behind the cards."
+    },
+    {
+      "id": "contrast-project-meta",
+      "check": "contrast",
+      "target": "div.business-projects span",
+      "severity": "minor",
+      "finding": "Country and date lines on the company cards (10 px, --gold) measure 3.44–4.38:1 at worst; the share below 4.5:1 ranges from 19% to 100% depending on where each card sits over the painting.",
+      "suggested_fix": "Raise the size or use a lighter gold on the translucent cards."
     },
     {
       "id": "pii-pte-report",
