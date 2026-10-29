@@ -15,7 +15,7 @@ const SKIP = new Set([".git", "node_modules", "dist", "test-results", ".netlify"
 export async function runMutant(mutate, testArgs) {
   const root = mkdtempSync(path.join(tmpdir(), "site-mutant-"));
   try {
-    cpSync(REPO, root, { recursive: true, filter: (src) => !path.relative(REPO, src).split(path.sep).some((s) => SKIP.has(s)) });
+    cpSync(REPO, root, { recursive: true, verbatimSymlinks: true, filter: (src) => !path.relative(REPO, src).split(path.sep).some((s) => SKIP.has(s)) });
     await mutate(root);
     // Drop NODE_TEST_CONTEXT: inherited from this runner, it makes the child emit a binary
     // protocol instead of TAP, and every mutant then "passes" with zero tests run.

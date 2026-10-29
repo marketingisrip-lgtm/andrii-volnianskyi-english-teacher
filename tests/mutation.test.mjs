@@ -6,7 +6,7 @@ import { readFileSync, writeFileSync, unlinkSync, copyFileSync } from "node:fs";
 import path from "node:path";
 import { runMutant, edit, append } from "./lib/mutant.mjs";
 
-const SUITES = ["tests/site.test.mjs", "tests/claims.test.mjs"];
+const SUITES = ["tests/site.test.mjs", "tests/claims.test.mjs", "tests/agent-assets.test.mjs"];
 
 async function failingTests(mutate) {
   const { ran, failed, stderr } = await runMutant(mutate, SUITES);
@@ -47,6 +47,10 @@ const MUTANTS = [
   ["ship a new certificate nobody reviewed for personal data", (root) => copyFileSync(path.join(root, "assets/certificates/yappi-business-english.png"), path.join(root, "assets/certificates/yappi-copy.png")), "every shipped document was reviewed for personal data"],
   // Built at run time, so this file never holds the token shape it plants.
   ["commit an access token", append("web/PROCEDURES.md", `\ntoken: ${"ghp_"}${"x".repeat(36)}\n`), "no credentials are committed"],
+  ["give a model-invoked skill a Codex policy block", append(".claude/skills/site-verify/agents/openai.yaml", "policy:\n  allow_implicit_invocation: true\n"), "skill site-verify: valid for Codex (agents/openai.yaml)"],
+  ["leave a trigger list on a user-invoked skill", edit(".claude/skills/web-release/SKILL.md", "before production.", "before production. Use it when Andrii says deploy."), "skill web-release: valid for Claude Code"],
+  ["give a subagent a tool that does not exist", edit(".claude/agents/site-verifier.md", "tools: Bash, Read, Grep, Glob", "tools: Bash, Read, Grep, Glob, Teleport"), "agent site-verifier: valid subagent definition"],
+  ["point the docs at a script that does not exist", append("web/PROCEDURES.md", "\nThen run `npm run deploy:all`.\n"), "docs name only skills, agents, scripts and files that exist"],
   ["register an issue no test re-checks", (root) => {
     const file = path.join(root, "web/known-issues.json");
     const reg = JSON.parse(readFileSync(file, "utf8"));

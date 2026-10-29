@@ -27,18 +27,21 @@ assets/                         images, certificates, CV (all shipped by `npm ru
 server/index.js                 Cloudflare Workers entry (serves the static assets)
 web/claims-ledger.json          claim -> evidence -> status
 web/known-issues.json           owner-gated defects the tests tolerate (and re-check)
+web/privacy-review.json         every shipped certificate and PDF, reviewed for personal data (sha256)
 web/PROCEDURES.md               P1–P6
-tests/                          node:test suites (static, claims, lint, mutation, runtime)
+tests/                          node:test suites (static, claims, lint, planted defects, runtime)
 scripts/check-native-load.mjs   proves Claude Code loads the skills and agents
+scripts/run-skill-evals.mjs     routing evals from .claude/skills/*/evals/triggers.json
 .claude/skills, .claude/agents  native skills and subagents (Codex: .agents/skills)
 ```
 
 ## Commands
-- `npm test`: static page checks, claims ledger, skill/agent lint, and the mutation suite (checks the checks)
-- `npm run test:runtime`: Playwright at 320/390/768/1280, keyboard, targets, no-JS, fonts
-- `npm run verify`: both of the above
+- `npm test`: static page checks, claims ledger, skill/agent lint, and the planted-defect suite (checks the checks)
+- `npm run test:runtime`: Playwright at 320/390/768/1280 and on short or zoomed screens: keyboard, targets, contrast, no-JS, fonts
+- `npm run test:runtime-mutation`: plants browser defects; each must turn its runtime test red
+- `npm run verify`: all three of the above
 - `npm run check:native-load`: a fresh `claude` must list every skill and agent
-- `npm run build`: what Netlify publishes (`dist/`)
+- `npm run eval:skills`: routing evals; fresh headless sessions must reach for the right skill (one short session per query)
 
 ## Procedures
 See `web/PROCEDURES.md`.
@@ -61,4 +64,6 @@ See `web/PROCEDURES.md`.
 ## Account-level skills this guide relies on
 `autonomous-ops` and `account-check` (before any deploy), `llm-delegation` (accepting other models'
 work), `agent-fleet-orchestration` (parallel reviewers), `celta-builder-dev-loop` (single-file HTML
-tools), and `celta-align` (CELTA content on learning pages).
+tools), and `celta-align` (CELTA content on learning pages). They load only in the owner's
+Claude sessions. Codex cannot see them, so each rule above that matters is written out here or in a
+repo skill, and a handoff to Codex quotes the rule instead of naming the skill.

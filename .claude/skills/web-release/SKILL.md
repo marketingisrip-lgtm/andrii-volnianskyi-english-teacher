@@ -1,10 +1,6 @@
 ---
 name: web-release
-description: >-
-  Owner-invoked release of this website: identify the live host and account, require a green
-  `npm run verify` on the exact commit, deploy a preview, probe it, promote only on Andrii's explicit go,
-  then probe production with retries and report the account, URLs and status codes. Invoke only when
-  Andrii says to deploy or publish (/web-release); never on your own initiative.
+description: Deploy this website with an account check, a verified commit, a probed preview and Andrii's go before production.
 disable-model-invocation: true
 ---
 
@@ -43,9 +39,19 @@ whether they block the release.
      printf '%s %s\n' "$(curl -s -o /dev/null -w '%{http_code}' "$URL$p")" "$p"; done
    ```
    Then run the runtime suite against it if needed, or open it once and read the console.
+   Until step 3, say plainly that the release is **staged, not live** (owner skill `staged-release`).
 3. Promote only after Andrii's explicit go-ahead for this release (`netlify deploy --prod --dir=dist`).
 4. Probe production with the same loop, retrying with backoff (2 s, 4 s, 8 s). A first 200 can be
-   a stale CDN copy of the previous publish, so confirm one changed file's new content as well.
+   a stale CDN copy of the previous publish, so compare content, not just status: fetch each changed
+   file with a cache-busting query and compare its sha256 with the file in `dist/`:
+   ```bash
+   for f in index.html styles.css; do
+     printf '%s %s\n' "$(curl -s "$URL/$f?v=$(date +%s)" | shasum -a 256 | cut -c1-12)" "$(shasum -a 256 dist/$f | cut -c1-12) $f"; done
+   ```
+5. **Check headers from outside after every publish**, not once at setup:
+   `curl -sI "$URL/" | grep -iE 'cache-control|content-type|x-frame-options'`. Owner lesson
+   (`staged-release`, 16 Aug 2026): a `Cache-Control` header verified once was reset by each later
+   upload, and a summary went on reporting it as set.
 
 ## 4. Never
 - Never deploy from a dirty tree or an unverified commit, delete a site or deployment, or create
@@ -55,5 +61,6 @@ whether they block the release.
 
 ## Report
 State the host, account, site and commit; the preview URL and its status codes; the go-ahead you
-received (quoted); the production URL and its status codes, including the content check; and
-anything not verified.
+received (quoted); the production URL and its status codes, the content hashes and the headers; and
+anything not verified. End the message to Andrii with "hard-refresh (Cmd/Ctrl+Shift+R) once": anyone
+with the page already open still has the old copy (owner skill `deploy-verify-loop`).

@@ -501,7 +501,7 @@
       "kind": "percentage",
       "status": "unbacked",
       "evidence": [],
-      "note": "Not in the CV and no evidence in the repo."
+      "note": "Not in the CV and no evidence in the repo. The owner's skill library records that his own CVs say \"+30% sales and +280% ROMI\", so a source probably exists outside the repo; but the page says ROI, and return on marketing investment (ROMI) is a different metric. Needs the source and the right metric name."
     },
     {
       "id": "darwin-results",

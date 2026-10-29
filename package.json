@@ -8,6 +8,7 @@
     "test:runtime": "node --test tests/runtime.test.mjs",
     "test:runtime-mutation": "node --test tests/runtime-mutation.test.mjs",
     "verify": "npm test && npm run test:runtime && npm run test:runtime-mutation",
-    "check:native-load": "node scripts/check-native-load.mjs"
+    "check:native-load": "node scripts/check-native-load.mjs",
+    "eval:skills": "node scripts/run-skill-evals.mjs"
   }
 }

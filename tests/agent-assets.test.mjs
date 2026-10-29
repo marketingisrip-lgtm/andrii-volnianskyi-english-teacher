@@ -5,7 +5,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, existsSync, lstatSync, realpathSync } from "node:fs";
 import path from "node:path";
-import { REPO } from "./lib/html.mjs";
+import { ROOT as REPO } from "./lib/html.mjs"; // SITE_ROOT when a planted-defect run points the suite at a copy
 
 const SKILLS_DIR = path.join(REPO, ".claude/skills");
 const AGENTS_DIR = path.join(REPO, ".claude/agents");
@@ -70,6 +70,11 @@ for (const skill of skills) {
     assert.match(skill, NAME);
     assert.ok(skill.length <= 64 && !/anthropic|claude/.test(skill), "name: max 64 chars, no reserved words");
     assert.ok(data.description && data.description.length <= 1024, "description: required, max 1024 chars");
+    assert.doesNotMatch(data.description, /[<>]/, "description: no angle brackets (the skill listing is XML-delimited)");
+    if (data["disable-model-invocation"] === "true") {
+      // Read by a person browsing slash commands, not by the model: one line, no trigger list.
+      assert.ok(data.description.length <= 160 && !/\b(use|invoke)\b[^.]*\bwhen\b/i.test(data.description), "user-invoked: description is a one-line human summary without trigger phrasing");
+    } else assert.match(data.description, /\b(use|invoke)\b[^.]*\b(when|whenever|before|after|for)\b/i, "model-invoked: description must say when to use it (\"Use when/before/after/for …\"), so auto-invocation fires");
     assert.deepEqual(Object.keys(data).filter((k) => !SKILL_KEYS.has(k)), [], "unknown frontmatter keys");
     assert.ok(body.trim().length > 200, "body is too thin to be a procedure");
   });
@@ -80,9 +85,11 @@ for (const skill of skills) {
     const y = yaml2(file);
     assert.ok(y.interface?.display_name, "interface.display_name missing");
     assert.ok(y.interface?.short_description && y.interface.short_description.length <= 120, "interface.short_description missing or over 120 chars");
-    assert.match(y.policy?.allow_implicit_invocation || "", /^(true|false)$/, "policy.allow_implicit_invocation must be true or false");
+    // The owner's convention: model-invoked skills omit the policy block; user-invoked skills set
+    // disable-model-invocation in Claude Code and allow_implicit_invocation: false in Codex.
     const userOnly = frontmatter(path.join(SKILLS_DIR, skill, "SKILL.md")).data["disable-model-invocation"] === "true";
-    assert.equal(y.policy.allow_implicit_invocation === "false", userOnly, "Codex implicit invocation must mirror Claude's disable-model-invocation");
+    if (userOnly) assert.deepEqual(y.policy, { allow_implicit_invocation: "false" }, "user-invoked: policy.allow_implicit_invocation must be false");
+    else assert.equal(y.policy, undefined, "model-invoked: omit the policy block");
   });
 }
 

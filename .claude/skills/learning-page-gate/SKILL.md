@@ -1,13 +1,12 @@
 ---
 name: learning-page-gate
 description: >-
-  Gate for any English-learning web page or hub (lesson page, exam-prep hub, speaking or writing
-  practice tool, cross-page practice flow) before it is called done or published. Checks that the page
-  states a learner aim, protects the productive stage, has a self-check with a retry, labels exam
-  formats honestly against the official spec, keeps saved state meaningful across pages, has zero dead
-  links, and works on keyboard and at 320/390 px. Invoke when building, reviewing or merging a learning
-  page, on "review the prep hub", "is this lesson page ready", "check the practice flow", or when a
-  handoff says a learning page was audited.
+  Use before an English-learning page or hub (lesson page, exam-prep hub, quiz, speaking or writing
+  practice) is called done, published or merged, and whenever one is reviewed: "review the lesson
+  page before I publish it", "is the prep hub ready", "check the practice flow", or a handoff saying
+  a learning page was audited. english-web-design calls it while building. Checks the learner aim,
+  the protected productive stage, a self-check with a retry, exam formats against the official spec,
+  saved state across pages, zero dead links, and keyboard and 320/390 px use.
 ---
 
 # Learning page gate
@@ -66,11 +65,21 @@ can run alone.
   picks do not cover. A learner must never be told to do a task the current state makes impossible.
 - Check inventory parity both ways: consumer defaults minus producer choices, and producer choices
   minus consumer items. Report the exact set difference.
+- Test the contract, not the content (owner skill `contract-not-content`): assert on the globals,
+  storage keys and field names pages share, so a reworded exercise cannot break the check and a
+  renamed key cannot slip through it.
+- Normalise answers before marking: trim, fold case and curly quotes, collapse spaces, and accept
+  listed variants (British and American spelling, contractions). A correct answer marked wrong
+  teaches the wrong lesson.
 
-## 5. Links and structure
+## 5. Level, links and structure
+- Pitch the language at the stated CEFR level. Check the target items against a level reference
+  (English Vocabulary Profile or the coursebook's level), and label anything above it as stretch.
 - Crawl every `href` from the hub: zero missing local targets, and each resource has one home card
   (no duplicates). The CAE hub had six dead targets (wrong folders, wrong file names) and three
   usable pages it never linked.
+- External links rot. Check each one returns 200 (HEAD, then GET when HEAD is refused) on the day of
+  release, and record the date; a dead exam-board link sends the learner nowhere.
 - Run `npm test`, which applies every static check to every root `*.html` page, and add the page to
   the `build` script.
 

@@ -40,8 +40,9 @@ Each procedure ends with evidence: command output, a screenshot looked at, or a 
 2. Re-run each verification yourself, or with the `handoff-verifier` subagent. A claim you have
    not reproduced stays `UNVERIFIED` in the receipt.
 3. Adopt workflows as native files: skills in `.claude/skills/<name>/SKILL.md` with
-   `agents/openai.yaml`, subagents in `.claude/agents/<name>.md`, and steps here.
-4. Run `npm run verify` and `npm run check:native-load`.
+   `agents/openai.yaml` and `evals/triggers.json`, subagents in `.claude/agents/<name>.md`, and
+   steps here. Every new check gets a planted defect that turns it red.
+4. Run `npm run verify`, `npm run check:native-load` and `npm run eval:skills`.
 5. Write the adoption receipt (`codex-handoff` has the template). It lists sources, the
    mapping, evidence, what is unverified, and the true remainder.
 

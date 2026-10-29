@@ -47,14 +47,19 @@ Do not duplicate. If an account-level skill already covers the workflow (`llm-de
 - `SKILL.md` frontmatter: `name` (equal to the folder name, lowercase-hyphen, max 64 characters),
   `description` (max 1024 characters, saying what it does **and** when to invoke it), and optionally
   `disable-model-invocation: true` for user-only skills (deploys, deletes).
-- `agents/openai.yaml` beside it, for the Codex UI and invocation policy:
+- `agents/openai.yaml` beside it, for the Codex skill picker:
   ```yaml
   interface:
     display_name: "Site verify"
     short_description: "…max 120 chars…"
-  policy:
-    allow_implicit_invocation: true   # false exactly when disable-model-invocation: true
   ```
+  The owner's convention (`invocation.md` in his skills repo): a **model-invoked** skill omits the
+  `policy` block and keeps a model-facing description that says when to use it, triggers first. A
+  **user-invoked** skill sets `disable-model-invocation: true` in `SKILL.md`, adds
+  `policy: allow_implicit_invocation: false` here, and has a one-line human description with no
+  trigger list. A skill is user-invoked in both harnesses or neither.
+- `evals/triggers.json` holds routing queries (`should_trigger` true, and near misses false).
+  `npm run eval:skills` runs each in a fresh headless session and checks which skill it reaches for.
 - Codex reads repo skills from `.agents/skills`, which is a symlink to `.claude/skills`, so there are
   no generated copies. `AGENTS.md` is a symlink to `CLAUDE.md`.
 - `tests/agent-assets.test.mjs` enforces all of the above, and checks that the docs name only skills,
@@ -94,4 +99,16 @@ Status: COMPLETE | PARTIAL (<why>)
 Write `CODEX_HANDOFF_<date>.md` with these sections: Objective · Read first (paths) · Source of
 truth · Skill stack and order · Guardrails (no publishing, no deleting, claims via the ledger) ·
 Verification already completed (each with its command and result) · Open items · Completion
-condition ("done only when …"). Name the actor on every line.
+condition ("done only when …"). Name the actor on every line. This is the shape of the Codex
+CAE-hub handoff (25 Aug 2026), which worked.
+
+The message that points Codex (or another chat) at it carries six parts (owner skill `chat-handoff`):
+**WHAT** the change is, in one line · **WHERE** it is (paths, branch or patch) · **WHY it is not a
+copy** (the decisions that would be lost if someone rebuilt it from the summary) · **WHAT IS EASY TO
+BREAK** (the two or three invariants that look like noise) · **VERIFICATION STATE** (what was proved
+and what was not) · **WHAT THEY MUST DO** (the next command, and how they will know it worked).
+
+Codex sees only what is in the repo: `AGENTS.md`, `web/AGENTS.md`, `.agents/skills` and the files you
+name. The owner's account-level Claude skills (`llm-delegation`, `autonomous-ops`, `account-check`, the
+`celta-*` family) do not exist for Codex, so quote the rule a handoff depends on instead of naming the
+skill.

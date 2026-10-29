@@ -1,13 +1,13 @@
 ---
 name: english-web-design
 description: >-
-  Entry point for any design or content work on Andrii's English-teaching web pages: the portfolio
-  (index.html) and any English-learning page or hub in this repo. Sets the order of work: pre-flight
-  reading, the house visual system, staging instead of overwriting, turning visual verdicts into
-  measurements, the claims and learning-page gates, parallel read-only reviewers, and the verification
-  gate before anything is called done. Invoke for "redesign", "add a section", "update the site",
-  "make it look better", "build a lesson page", "fix this" with a screenshot, or any aesthetic verdict
-  ("childish", "too busy", "not subtle", "дитячо", "штучно").
+  Use for any design or content change to Andrii's English-teaching site: adding or editing a section
+  ("add a testimonials section"), redesigning or restyling ("the hero feels cluttered", "make it look
+  better"), building a new English-learning page or hub, "fix this" with a screenshot, or an
+  aesthetic verdict ("childish", "too busy", "дитячо", "штучно"). The entry point that sets the order
+  of work: pre-flight, the house visual system, staging instead of overwriting, verdicts turned into
+  measurements, the claims and learning-page gates, read-only reviewers, and verification before
+  anything is called done.
 ---
 
 # English web design
@@ -68,12 +68,21 @@ You remain the only writer.
 
 Treat their reports as inputs: spot-check one finding from each before acting on it.
 
+When several agents must measure or classify the same way (contrast, counts, claims), give them the
+same executable helper and one worked example with a known answer, never a prose description of
+the method: five agents given one described query once produced three different counts for the
+same phrase, which agreed often enough to look verified (owner skill
+`delegate-a-fixture-not-a-method`). In this repo the fixtures are the test helpers
+(`tests/lib/png.mjs` for contrast, `tests/lib/html.mjs` for page parsing) and the tests themselves.
+
 ## 6. Other models' work
 A Codex completion or another session's "done, verified" is a draft until re-run
 (`codex-handoff`). Render it yourself. Codex once shipped layout it could not open in a browser,
 and the render showed a paragraph repeated four times plus badges duplicating job titles.
 
 ## 7. Close
-Commit with explicit paths. Report what changed, the gate results (counts, NOT RUN items), the
+Commit with explicit paths, after the repo-scope tripwire (owner skill `repo-scope-commit`):
+`git rev-parse --show-toplevel` must be this repo, and `git diff --cached --name-only | wc -l` must
+match the number of files you meant to change. If the count is far larger, stop and unstage. Report what changed, the gate results (counts, NOT RUN items), the
 renders you looked at, and every owner decision still open. If Codex continues the work, write a
 handoff (P6).

@@ -1,0 +1,22 @@
+{
+  "skill": "learning-page-gate",
+  "about": "Routing evals: should_trigger true means the model reaches for this skill on its own; false is a near miss.",
+  "queries": [
+    {
+      "query": "Review the new phrasal-verbs lesson page before I publish it.",
+      "should_trigger": true
+    },
+    {
+      "query": "Is the CAE speaking prep hub ready to publish? Check it properly.",
+      "should_trigger": true
+    },
+    {
+      "query": "Before we merge the vocabulary quiz page, check its self-check and the exam timings.",
+      "should_trigger": true
+    },
+    {
+      "query": "Summarise what changed in the last three commits.",
+      "should_trigger": false
+    }
+  ]
+}

@@ -1,5 +1,3 @@
 interface:
   display_name: "Site verify"
   short_description: "Run the site's static, claims, mutation and browser suites, then look at the renders"
-policy:
-  allow_implicit_invocation: true

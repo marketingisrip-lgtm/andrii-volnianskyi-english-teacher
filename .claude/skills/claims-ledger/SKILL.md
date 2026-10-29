@@ -1,12 +1,12 @@
 ---
 name: claims-ledger
 description: >-
-  Provenance rules for every factual claim on Andrii's public pages: scores, hours, grades, dates,
-  employers, results, "verified", "scheduled". Every claim maps to an entry in web/claims-ledger.json
-  with evidence in the repo and a status (backed, partial, conflict, unbacked, stale, plan). Invoke
-  before adding or editing any number, credential or date on a page; when the claims test fails; when a
-  date-bound claim may have expired (score validity, "scheduled", "this year"); and on "is this claim
-  right", "update my credentials", "audit the claims".
+  Use before adding, changing or checking any number, date, score, hour count, grade, employer,
+  result or credential word on Andrii's site, such as "change the PTE score", "add CELTA completed",
+  "is the 624 hours claim accurate" or "update my credentials"; also when the claims test fails or a
+  dated claim may have expired. Every factual claim maps to in-repo evidence in
+  web/claims-ledger.json with a status (backed, partial, conflict, unbacked, stale, plan), and the
+  agent never invents, picks or rewords a figure to make a check pass.
 ---
 
 # Claims ledger
@@ -30,6 +30,20 @@ the owner's to source or reword, never the agent's to "fix".
 | `stale` | was true or planned, but its date has passed | ask for the new wording (taken / result / new date) |
 | `plan` | a future target the page labels as a target | re-check when the year arrives |
 
+These map onto the owner's `evidence-quality-checker` statuses: backed = Verified, partial =
+Partially verified, conflict = Contradicted, unbacked = Unverified (or Fabrication risk when it is
+suspiciously specific and untraceable), stale = Outdated. Exercise material on learning pages is
+Constructed and stays out of the ledger.
+
+**The metric's name is part of the claim.** "280% ROI improvement" and "+280% ROMI" are different
+claims: return on marketing investment is not return on investment. So are "C1" and "84/90", and
+"completed" and "completing".
+
+**Graphics carry claims too.** A logo, certification mark, flag or chart says something about
+Andrii, and its alt text repeats it. On 29 Oct 2026 the Beinf card showed another company's
+wordmark under the Beinf name (`logo-beinf`, conflict). Check each image against the name beside it,
+and keep provider marks for qualifications not yet held clearly labelled as targets.
+
 ## Adding or changing a claim (P2)
 1. **Find the evidence first**: a certificate, score report, the CV (`assets/Andrii_Volnianskyi_CV.pdf`,
    which has image-only pages, so render them to read: `pdftoppm -r 80 -png <pdf> /tmp/cv`), or
@@ -42,7 +56,11 @@ the owner's to source or reword, never the agent's to "fix".
    (`file` plus what it `says`, quoted from the document), and a `note` for anything other than
    `backed`. Add `where: {"class": "..."}` when the same text means different things in two places
    (for example two "Final grade A" badges). Add `valid_until` to anything that expires.
-4. Run `npm test`. The claims suite fails on any visible number or credential word with no entry,
+4. **Propagate.** Before calling a claim fixed, sweep every place it lives: the page text, alt
+   text, `<meta>` description, the CV, and every ledger entry whose note says "Repeats …". Owner
+   lesson (`claim-provenance-ledger`): in August 2026 a wrong "300% ROMI" sat in four summary
+   sentences of a CV and survived the first two fixes, because each fix corrected one field.
+5. Run `npm test`. The claims suite fails on any visible number or credential word with no entry,
    on entries whose text left the page, on missing evidence files, and on an expired `valid_until`
    not marked `stale`. It scans `index.html` only, because learning pages are full of exercise
    numbers that are not claims about Andrii. A claim about him on another page (a bio line, a
@@ -58,7 +76,11 @@ These are evidence facts for Andrii to act on, not edits to make:
   Present-tense "verified PTE Academic C1" needs a date.
 - **"General English C2 · Part 2"**: that certificate says "Course 1".
 - **30 % sales growth, 280 % ROI, "10+ person team", per-company dates, "60+ lessons", "CELTA
-  140 hours"**: no evidence in the repo.
+  140 hours"**: no evidence in the repo. The owner's own CVs reportedly say "+30% sales and +280%
+  ROMI", so a source probably exists, but the page's "ROI" is a different metric.
+- **"Before moving into English teaching, I built and led marketing"**: the page and the CV date
+  the tutoring from 2017 and the marketing from 2018, both running to now.
+- **Beinf logo**: the image is another company's wordmark.
 
 ## Third parties
 Linking a real person (a reference, a colleague, a testimonial) is a claim about **them**. Use a
