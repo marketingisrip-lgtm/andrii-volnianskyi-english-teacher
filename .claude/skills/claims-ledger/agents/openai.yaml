@@ -1,3 +1,5 @@
 interface:
   display_name: "Claims ledger"
   short_description: "Every score, date and credential on the site maps to in-repo evidence and a status"
+policy:
+  allow_implicit_invocation: true

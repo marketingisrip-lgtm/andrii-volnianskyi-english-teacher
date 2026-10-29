@@ -47,17 +47,19 @@ Do not duplicate. If an account-level skill already covers the workflow (`llm-de
 - `SKILL.md` frontmatter: `name` (equal to the folder name, lowercase-hyphen, max 64 characters),
   `description` (max 1024 characters, saying what it does **and** when to invoke it), and optionally
   `disable-model-invocation: true` for user-only skills (deploys, deletes).
-- `agents/openai.yaml` beside it, for the Codex skill picker:
+- `agents/openai.yaml` beside it, for the Codex skill picker and invocation policy:
   ```yaml
   interface:
     display_name: "Site verify"
     short_description: "…max 120 chars…"
+  policy:
+    allow_implicit_invocation: true   # false exactly when disable-model-invocation: true
   ```
-  The owner's convention (`invocation.md` in his skills repo): a **model-invoked** skill omits the
-  `policy` block and keeps a model-facing description that says when to use it, triggers first. A
-  **user-invoked** skill sets `disable-model-invocation: true` in `SKILL.md`, adds
-  `policy: allow_implicit_invocation: false` here, and has a one-line human description with no
-  trigger list. A skill is user-invoked in both harnesses or neither.
+  A skill is user-invoked in both harnesses or neither. A **model-invoked** skill's description
+  says when to use it, triggers first, because the model routes on the description alone. A
+  **user-invoked** skill's description is a one-line summary for a person browsing slash commands,
+  with no trigger list. (A third-party skills repo in the owner's Drive, `skills-main`, omits the
+  policy block for model-invoked skills; Codex behaves the same, since true is its default.)
 - `evals/triggers.json` holds routing queries (`should_trigger` true, and near misses false).
   `npm run eval:skills` runs each in a fresh headless session and checks which skill it reaches for.
 - Codex reads repo skills from `.agents/skills`, which is a symlink to `.claude/skills`, so there are

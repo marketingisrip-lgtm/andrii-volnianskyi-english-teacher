@@ -47,7 +47,7 @@ const MUTANTS = [
   ["ship a new certificate nobody reviewed for personal data", (root) => copyFileSync(path.join(root, "assets/certificates/yappi-business-english.png"), path.join(root, "assets/certificates/yappi-copy.png")), "every shipped document was reviewed for personal data"],
   // Built at run time, so this file never holds the token shape it plants.
   ["commit an access token", append("web/PROCEDURES.md", `\ntoken: ${"ghp_"}${"x".repeat(36)}\n`), "no credentials are committed"],
-  ["give a model-invoked skill a Codex policy block", append(".claude/skills/site-verify/agents/openai.yaml", "policy:\n  allow_implicit_invocation: true\n"), "skill site-verify: valid for Codex (agents/openai.yaml)"],
+  ["let Codex's invocation policy disagree with Claude's", edit(".claude/skills/site-verify/agents/openai.yaml", "allow_implicit_invocation: true", "allow_implicit_invocation: false"), "skill site-verify: valid for Codex (agents/openai.yaml)"],
   ["leave a trigger list on a user-invoked skill", edit(".claude/skills/web-release/SKILL.md", "before production.", "before production. Use it when Andrii says deploy."), "skill web-release: valid for Claude Code"],
   ["give a subagent a tool that does not exist", edit(".claude/agents/site-verifier.md", "tools: Bash, Read, Grep, Glob", "tools: Bash, Read, Grep, Glob, Teleport"), "agent site-verifier: valid subagent definition"],
   ["point the docs at a script that does not exist", append("web/PROCEDURES.md", "\nThen run `npm run deploy:all`.\n"), "docs name only skills, agents, scripts and files that exist"],
