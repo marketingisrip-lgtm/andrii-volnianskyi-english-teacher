@@ -116,6 +116,46 @@
       "suggested_fix": "Move repeated literals onto tokens section by section, and lower `limit` in the same commit. The ratchet fails if the count rises or falls without the limit following."
     },
     {
+      "id": "contrast-growth-dates",
+      "check": "contrast",
+      "target": "article.growth-point time",
+      "severity": "minor",
+      "finding": "Dates on the growth-path cards (11 px) measure 4.46:1 against the card, just under the 4.5:1 AA minimum. The timeline depends on them.",
+      "suggested_fix": "Darken the date colour slightly (for example #8a6212) or raise the size."
+    },
+    {
+      "id": "contrast-cpe-badge",
+      "check": "contrast",
+      "target": "article.growth-point span.level",
+      "severity": "major",
+      "finding": "The CPE target's level badge is white on #d99d1e: 2.39:1 for 12 px bold text (AA needs 4.5:1). Found by the web-design-reviewer agent and confirmed by this check.",
+      "suggested_fix": "Use --ink text on the gold badge (about 6:1) or a darker gold."
+    },
+    {
+      "id": "contrast-target-years",
+      "check": "contrast",
+      "target": "div.target-grid time",
+      "severity": "minor",
+      "finding": "The forward-plan years (2027, 2028; 11 px) measure 3.99:1.",
+      "suggested_fix": "Darken the colour or raise the size."
+    },
+    {
+      "id": "aria-label-generic-growth-path",
+      "check": "aria-naming",
+      "target": "div.growth-path",
+      "severity": "minor",
+      "finding": "aria-label=\"Learning pathway from C1 to CPE\" sits on a <div> with no role. ARIA does not allow naming a generic element, so screen readers will likely ignore it, and the order in time is shown only by position on the curve.",
+      "suggested_fix": "Make the path an <ol> with <li> points (it keeps its aria-label), or add role=\"list\" and role=\"listitem\"."
+    },
+    {
+      "id": "contrast-hero-over-painting",
+      "check": "contrast-over-image",
+      "target": "header.hero .eyebrow, h1",
+      "severity": "major",
+      "finding": "Measured by the web-design-reviewer agent, which pixel-sampled the painting behind the text. The hero eyebrow (11 px, #bcdbe7) is below 4.5:1 over 19.6% of its box at 1280 px (worst 2.41) and 21.8% at 390 px (worst 1.76). The h1 drops to 2.21 at worst over the bright stars at 1280 px. Manual check: the runtime suite cannot compute contrast over images.",
+      "suggested_fix": "Add a scrim behind .hero-copy (for example a #142441 gradient at about 70%) or move the art further right at desktop."
+    },
+    {
       "id": "pii-pte-report",
       "check": "personal-data",
       "target": "assets/certificates/pte-academic-score-report.png",

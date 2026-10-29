@@ -56,15 +56,26 @@ async function open(contextOptions) {
   return { context, page, log };
 }
 
+/**
+ * Bring each reveal section and each counter into view and wait for its end state. A fixed-delay
+ * sweep with smooth scrolling flaked under CPU load: the page could pass a short section between
+ * frames, so its IntersectionObserver never fired. Returns what never settled.
+ */
 async function scrollThrough(page) {
-  await page.evaluate(async () => {
-    for (let y = 0; y < document.documentElement.scrollHeight; y += Math.round(innerHeight * 0.6)) {
-      scrollTo(0, y);
-      await new Promise((r) => setTimeout(r, 120));
-    }
-    scrollTo(0, document.documentElement.scrollHeight);
-    await new Promise((r) => setTimeout(r, 1300)); // count-up animation runs 900 ms
-  });
+  const unsettled = [];
+  for (const sel of await page.$$eval(".reveal, [data-count]", (els) => els.map((e, i) => (e.dataset.probe = String(i), `[data-probe="${i}"]`)))) {
+    await page.$eval(sel, (el) => el.scrollIntoView({ block: "center", behavior: "instant" }));
+    const settled = await page
+      .waitForFunction((s) => {
+        const el = document.querySelector(s);
+        if (el.classList.contains("reveal")) return el.classList.contains("is-visible");
+        const suffix = el.textContent.includes("+") ? "+" : el.textContent.includes("%") ? "%" : "";
+        return el.textContent === `${el.dataset.count}${suffix}`;
+      }, sel, { timeout: 4000 })
+      .then(() => true, () => false);
+    if (!settled) unsettled.push(await page.$eval(sel, (el) => el.id || el.className || el.dataset.count));
+  }
+  return unsettled;
 }
 
 for (const width of WIDTHS) {
@@ -72,8 +83,7 @@ for (const width of WIDTHS) {
     const { context, page, log } = await open({ viewport: { width, height: 900 } });
     try {
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
-      await scrollThrough(page);
-      const hiddenReveals = await page.$$eval(".reveal", (els) => els.filter((e) => !e.classList.contains("is-visible")).map((e) => e.id || e.className));
+      const hiddenReveals = await scrollThrough(page);
       const counters = await page.$$eval("[data-count]", (els) => els.map((e) => ({ target: e.dataset.count, text: e.textContent })));
       const shot = path.join(OUT, "screens", `w${width}.png`);
       await page.evaluate(() => scrollTo(0, 0));
@@ -92,7 +102,7 @@ for (const width of WIDTHS) {
       assert.deepEqual(log.console, [], "console errors");
       assert.deepEqual(log.failed, [], "local requests that failed");
       assert.ok(overflow <= 1, `page scrolls sideways by ${overflow}px`);
-      assert.deepEqual(hiddenReveals, [], "sections still hidden after scrolling past them");
+      assert.deepEqual(hiddenReveals, [], "sections or counters that never reached their end state when scrolled into view");
       const STATIC = { 8: "8+", 4: "4", 30: "30%", 280: "280%" };
       for (const c of counters) assert.equal(c.text, STATIC[c.target] ?? c.text, `counter ${c.target} ended at "${c.text}"`);
     } finally {
@@ -259,4 +269,59 @@ test("body copy is at least 14px", async () => {
     }
   }
   judge("text-size", violations.slice(0, 1));
+});
+
+test("text on solid backgrounds meets WCAG 1.4.3 contrast", async () => {
+  const violations = [];
+  evidence.contrast = {};
+  for (const width of [390, 1280]) {
+    const { context, page } = await open({ viewport: { width, height: 900 }, reducedMotion: "reduce" });
+    try {
+      const result = await page.evaluate(() => {
+        const parse = (c) => {
+          const m = c.match(/rgba?\(([^)]+)\)/);
+          if (!m) return null;
+          const [r, g, b, a = 1] = m[1].split(/[ ,/]+/).filter(Boolean).map(Number);
+          return { r, g, b, a };
+        };
+        const lum = ({ r, g, b }) => [r, g, b].map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)).reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
+        const over = (top, under) => ({ r: top.r * top.a + under.r * (1 - top.a), g: top.g * top.a + under.g * (1 - top.a), b: top.b * top.a + under.b * (1 - top.a), a: 1 });
+        const out = [];
+        let overImage = 0;
+        for (const el of document.querySelectorAll("body *")) {
+          const own = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join("").trim();
+          if (!own || el.offsetParent === null) continue;
+          const cs = getComputedStyle(el);
+          const layers = [];
+          let image = false;
+          for (let a = el; a; a = a.parentElement) {
+            const st = getComputedStyle(a);
+            if (st.backgroundImage !== "none") { image = true; break; }
+            const c = parse(st.backgroundColor);
+            if (c && c.a > 0) { layers.push(c); if (c.a >= 1) break; }
+          }
+          // Text over a painting or gradient has no single background colour: counted, not judged.
+          if (image) { overImage++; continue; }
+          const bg = layers.reverse().reduce((acc, c) => over(c, acc), { r: 255, g: 255, b: 255, a: 1 });
+          let fg = parse(cs.color);
+          if (fg.a < 1) fg = over(fg, bg);
+          const [hi, lo] = [lum(fg), lum(bg)].sort((x, y) => y - x);
+          const ratio = (hi + 0.05) / (lo + 0.05);
+          const px = parseFloat(cs.fontSize);
+          const large = px >= 24 || (parseInt(cs.fontWeight) >= 700 && px >= 18.66);
+          if (ratio < (large ? 3 : 4.5)) {
+            const host = el.parentElement?.closest("[class]");
+            const target = `${host ? `${host.tagName.toLowerCase()}.${host.classList[0]} ` : ""}${el.tagName.toLowerCase()}${[...el.classList].map((c) => "." + c).join("")}`;
+            out.push({ target, detail: `"${own.slice(0, 20)}" ${ratio.toFixed(2)}:1 at ${px}px` });
+          }
+        }
+        return { out, overImage };
+      });
+      evidence.contrast[width] = { failing: result.out.map((v) => `${v.target}: ${v.detail}`), not_computed_over_image: result.overImage };
+      for (const v of result.out) if (!violations.some((x) => x.target === v.target)) violations.push(v);
+    } finally {
+      await context.close();
+    }
+  }
+  judge("contrast", violations);
 });

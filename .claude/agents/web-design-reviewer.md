@@ -31,7 +31,10 @@ actual background, and the count of competing accents. State the number in the f
    - keyboard reach and visible focus;
    - targets ≥ 24 px or spaced (2.5.8), with 44 px as advice;
    - reflow at 320 px;
-   - text contrast 4.5:1 (3:1 for large text) and 3:1 for UI and focus;
+   - text contrast 4.5:1 (3:1 for large text) and 3:1 for UI and focus. Solid backgrounds are
+     already checked by the runtime suite, so spend your effort on text over the paintings and
+     gradients: sample the pixels behind the text box and report the share below threshold and the
+     worst ratio;
    - meaning carried by more than colour; reduced motion; content visible without JS;
    - `lang` on any other-language text;
    - alt text that says what the image proves, not only what it is.

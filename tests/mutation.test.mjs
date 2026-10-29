@@ -55,6 +55,7 @@ const MUTANTS = [
   ["slip into American spelling", edit("index.html", "conversion optimisation", "conversion optimization"), "index.html: copy keeps to British spelling"],
   ["add a hard-coded colour instead of a token", edit("growth-path.css", ".growth-path{", ".growth-path .x{color:#123456}.growth-path{"), "hard-coded colours do not grow (token ratchet)"],
   ["put an unsourced number in alt text", edit("index.html", 'alt="Pearson PTE Academic score report"', 'alt="Pearson PTE Academic score report, 90/90"'), "every number and credential word on the page has a ledger entry"],
+  ["name a generic element with aria-label", edit("index.html", '<div class="frameworks">', '<div class="frameworks" aria-label="Frameworks">'), "aria-label sits only on elements that can be named"],
   ["remove a claim but keep its ledger entry", edit("index.html", "<span>UK · 2024–2025</span>", "<span>UK</span>"), "every ledger entry is still on the page"],
 ];
 

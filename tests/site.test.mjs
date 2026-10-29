@@ -146,3 +146,16 @@ test("hard-coded colours do not grow (token ratchet)", () => {
   assert.ok(count <= entry.limit, `${count} hex literals, above the ratchet of ${entry.limit}: use var(--token) for new colours`);
   assert.equal(count, entry.limit, `only ${count} hex literals now: lower "limit" in web/known-issues.json to ${count} so the gain is kept`);
 });
+
+test("aria-label sits only on elements that can be named", () => {
+  // ARIA forbids naming generic elements (div, span…) that have no role; screen readers ignore it.
+  // One judgement across all pages: a staged *-review.html copy shares its source page's defects.
+  const GENERIC = new Set(["div", "span", "p", "b", "i", "em", "strong", "small", "time"]);
+  const violations = [];
+  for (const { page, doc } of pages)
+    for (const e of doc.elements.filter((e) => e.attrs["aria-label"] && GENERIC.has(e.name) && !e.attrs.role)) {
+      const target = `${e.name}${e.attrs.class ? "." + e.attrs.class.split(/\s+/).join(".") : ""}`;
+      if (!violations.some((v) => v.target === target)) violations.push({ target, detail: `${page}:${e.line} aria-label="${e.attrs["aria-label"]}" with no role` });
+    }
+  judge("aria-naming", violations);
+});
