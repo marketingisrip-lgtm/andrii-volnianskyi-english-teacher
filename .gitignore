@@ -8,3 +8,10 @@ dist
 .DS_Store
 
 node_modules
+
+# Test evidence (screenshots, runtime and native-load reports)
+test-results
+
+# Local secrets (API keys for scripts or MCP servers)
+.env*
+!.env.example

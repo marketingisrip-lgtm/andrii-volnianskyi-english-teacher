@@ -1,0 +1,22 @@
+{
+  "skill": "claims-ledger",
+  "about": "Routing evals: should_trigger true means the model reaches for this skill on its own; false is a near miss.",
+  "queries": [
+    {
+      "query": "Change the PTE score on the site to 86.",
+      "should_trigger": true
+    },
+    {
+      "query": "Add a 'CELTA completed' chip to the hero.",
+      "should_trigger": true
+    },
+    {
+      "query": "Is the '624 hours' claim on the portfolio still accurate?",
+      "should_trigger": true
+    },
+    {
+      "query": "Make the hero's call-to-action button a slightly darker blue.",
+      "should_trigger": false
+    }
+  ]
+}

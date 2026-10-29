@@ -1,0 +1,267 @@
+{
+  "about": "Defects that the checks found but that need the owner's decision, because each fix deletes a file, recompresses an image or changes published content. tests/site.test.mjs passes on these and fails on anything new. An entry that stops reproducing also fails, so this list cannot go stale. Remove an entry in the same commit that fixes it.",
+  "checked_on": "2026-10-29",
+  "issues": [
+    {
+      "id": "invalid-image-gryphon-png",
+      "check": "asset-integrity",
+      "target": "assets/companies/gryphon-group.png",
+      "severity": "minor",
+      "finding": "A 79-byte HTTP error body ({\"status\":\"error\",\"code\":404,...}) saved with a .png name. The page does not reference it, but the build ships it.",
+      "suggested_fix": "Delete it (owner go-ahead: deleting files is owner-gated)."
+    },
+    {
+      "id": "invalid-image-gryphon-ico",
+      "check": "asset-integrity",
+      "target": "assets/companies/gryphon-group.ico",
+      "severity": "minor",
+      "finding": "Not an icon: it is a 160 KB HTML page (<!doctype html><html lang=\"uk\">..., third-party site markup) saved with an .ico name. The build ships it.",
+      "suggested_fix": "Delete it (owner go-ahead). If a Gryphon logo is wanted, download the real image and check it with this test."
+    },
+    {
+      "id": "unreferenced-gryphon-png",
+      "check": "asset-unreferenced",
+      "target": "assets/companies/gryphon-group.png",
+      "severity": "info",
+      "finding": "Not referenced by index.html, CSS or script.js, but shipped in dist/.",
+      "suggested_fix": "Delete together with invalid-image-gryphon-png."
+    },
+    {
+      "id": "unreferenced-gryphon-ico",
+      "check": "asset-unreferenced",
+      "target": "assets/companies/gryphon-group.ico",
+      "severity": "info",
+      "finding": "160 KB file (actually HTML, see invalid-image-gryphon-ico) that nothing references, shipped in dist/. The Gryphon card uses a text mark instead.",
+      "suggested_fix": "Delete, or use it in the Gryphon card."
+    },
+    {
+      "id": "unreferenced-pearson-pte",
+      "check": "asset-unreferenced",
+      "target": "assets/logos/pearson-pte.png",
+      "severity": "info",
+      "finding": "Alternative Pearson PTE logo that nothing references. The page uses assets/logos/pearson.png.",
+      "suggested_fix": "Delete or keep as a deliberate spare; either way, decide."
+    },
+    {
+      "id": "weight-portrait",
+      "check": "image-weight",
+      "target": "assets/andrii.png",
+      "severity": "major",
+      "finding": "1.17 MB PNG (959x1280) for the hero portrait, which is the largest above-the-fold request on mobile.",
+      "suggested_fix": "Export a ~600px-wide WebP/JPEG (<150 KB) and keep the PNG as the source outside assets/."
+    },
+    {
+      "id": "weight-cert-c2-part-1",
+      "check": "image-weight",
+      "target": "assets/certificates/general-english-c2-part-1.png",
+      "severity": "major",
+      "finding": "680 KB, 5263x3721 px, shown as a gallery thumbnail.",
+      "suggested_fix": "Ship a ~1200px thumbnail and link the full image."
+    },
+    {
+      "id": "weight-cert-c2-part-2",
+      "check": "image-weight",
+      "target": "assets/certificates/general-english-c2-part-2.png",
+      "severity": "major",
+      "finding": "688 KB, 5263x3721 px, shown as a gallery thumbnail.",
+      "suggested_fix": "As weight-cert-c2-part-1."
+    },
+    {
+      "id": "weight-cert-cae",
+      "check": "image-weight",
+      "target": "assets/certificates/cae-preparation-c1.png",
+      "severity": "major",
+      "finding": "700 KB, 5263x3721 px, shown as a gallery thumbnail.",
+      "suggested_fix": "As weight-cert-c2-part-1."
+    },
+    {
+      "id": "weight-starry-night",
+      "check": "image-weight",
+      "target": "assets/starry-night.jpg",
+      "severity": "minor",
+      "finding": "824 KB decorative background used by four CSS rules.",
+      "suggested_fix": "Recompress to <300 KB; the background is decorative."
+    },
+    {
+      "id": "small-body-text",
+      "check": "text-size",
+      "target": "index.html",
+      "severity": "minor",
+      "finding": "Body copy below the 14 px floor from the owner's google-cloud-design skill: growth-path cards 11 px, company and professional-value text 12 px, footer line 12 px, method and transfer cards 13 px (390 and 1280 px widths). Timeline and education text is 14 px.",
+      "suggested_fix": "Raise card copy to at least 14 px (16 px is the stated base) and re-check card heights at 390 px."
+    },
+    {
+      "id": "untokenised-colours",
+      "check": "token-ratchet",
+      "limit": 154,
+      "severity": "minor",
+      "finding": "154 hard-coded hex colours outside :root against 26 var(--) uses across the 12 stylesheets, so the 9 tokens in styles.css govern little of the page.",
+      "suggested_fix": "Move repeated literals onto tokens section by section, and lower `limit` in the same commit. The ratchet fails if the count rises or falls without the limit following."
+    },
+    {
+      "id": "contrast-growth-dates",
+      "check": "contrast",
+      "target": [
+        "div.growth-point time",
+        "div.growth-point div.period"
+      ],
+      "severity": "minor",
+      "finding": "Dates and periods on the growth-path cards (11 px) measure 4.46:1 against the card, just under the 4.5:1 AA minimum. The timeline depends on them.",
+      "suggested_fix": "Darken the date colour slightly (for example #8a6212) or raise the size."
+    },
+    {
+      "id": "contrast-cpe-badge",
+      "check": "contrast",
+      "target": "div.growth-point span.level",
+      "severity": "major",
+      "finding": "The CPE target's level badge is white on #d99d1e: 2.39:1 for 12 px bold text (AA needs 4.5:1). Found by the web-design-reviewer agent and confirmed by this check.",
+      "suggested_fix": "Use --ink text on the gold badge (about 6:1) or a darker gold."
+    },
+    {
+      "id": "contrast-target-years",
+      "check": "contrast",
+      "target": "div.target-grid time",
+      "severity": "minor",
+      "finding": "The forward-plan years (2027, 2028; 11 px) measure 3.99:1.",
+      "suggested_fix": "Darken the colour or raise the size."
+    },
+    {
+      "id": "contrast-hero-over-painting",
+      "check": "contrast",
+      "target": "div.hero-copy p.eyebrow",
+      "severity": "major",
+      "finding": "The hero eyebrow (11 px, #bcdbe7) sits over the Starry Night painting. Pixel-sampled by the runtime suite: 27.0% of the background under it is below 4.5:1 at 390 px (worst 1.76:1) and 23.3% at 1280 px (worst 2.29:1). The h1 passes the 3:1 large-text threshold over more than 95% of its box; its worst pixels reach about 2.2:1 over the brightest stars.",
+      "suggested_fix": "Add a scrim behind .hero-copy (for example a #142441 gradient at about 70%) or move the art further right at desktop."
+    },
+    {
+      "id": "contrast-nav-over-painting",
+      "check": "contrast",
+      "target": "div.nav-links a",
+      "severity": "minor",
+      "finding": "At 1280 px the nav links (13 px, #e7f0fc) cross the bright swirls of the hero painting: 13.3% of the background under \"Credentials\" is below 4.5:1 (worst 2.38:1). The links are hidden below 800 px.",
+      "suggested_fix": "Extend the hero scrim to the top band, or darken the painting's left edge behind the nav."
+    },
+    {
+      "id": "contrast-method-over-painting",
+      "check": "contrast",
+      "target": "div.method-grid p",
+      "severity": "minor",
+      "finding": "At 1280 px the fourth method card's text (13 px, #d6e0ef) sits over the method-band painting: 10.1% of the background under \"ICQs, CCQs, monitoring…\" is below 4.5:1 (worst 3.01:1).",
+      "suggested_fix": "Raise the gradient's opacity over the right-hand columns or start the art further right."
+    },
+    {
+      "id": "contrast-project-industry",
+      "check": "contrast",
+      "target": "div.business-projects span.industry",
+      "severity": "minor",
+      "finding": "Industry pills on the company cards (9 px bold, #f4ca69 on a translucent pill over the almond-blossom band) measure 3.26–4.31:1 at worst; on most cards over 80% of the background is below 4.5:1, at both 390 and 1280 px.",
+      "suggested_fix": "Raise the pills to at least 12 px and give them an opaque dark fill, or darken the band behind the cards."
+    },
+    {
+      "id": "contrast-project-meta",
+      "check": "contrast",
+      "target": "div.business-projects span",
+      "severity": "minor",
+      "finding": "Country and date lines on the company cards (10 px, --gold) measure 3.44–4.38:1 at worst; the share below 4.5:1 ranges from 19% to 100% depending on where each card sits over the painting.",
+      "suggested_fix": "Raise the size or use a lighter gold on the translucent cards."
+    },
+    {
+      "id": "pii-pte-report",
+      "check": "personal-data",
+      "target": "assets/certificates/pte-academic-score-report.png",
+      "severity": "major",
+      "finding": "The public score report image shows date of birth, test-taker ID, registration ID, score-report code and test-centre ID, and the repository is public too. The Grade and Yappi certificates show teacher names, certificate codes and QR codes, which is normal for verifiable certificates but is the owner's call.",
+      "suggested_fix": "Publish a redacted copy (keep name, scores and test date; blur DOB and IDs) if the owner did not intend to publish these."
+    },
+    {
+      "id": "motion-no-pause",
+      "check": "motion-pause",
+      "target": [
+        "paintDrift",
+        "orbFloat",
+        "portraitFloat",
+        "businessShift",
+        "pulsePoint"
+      ],
+      "severity": "minor",
+      "finding": "Five decorative animations run forever (painting drift, almond orb, portrait float, business-band shift, growth-path pulse) and the page has no control to pause them, which WCAG 2.2.2 (Level A) asks for. Visitors with the reduced-motion setting are covered: the CSS stops them. businessShift animates background-position on a large section, which repaints continuously.",
+      "suggested_fix": "Add a small \"Pause motion\" toggle that sets animation-play-state: paused on the page, or make the drifts run a few cycles and stop."
+    },
+    {
+      "id": "missing-social-meta",
+      "check": "social-meta",
+      "target": [
+        "og:title",
+        "og:description",
+        "og:image",
+        "canonical"
+      ],
+      "severity": "info",
+      "finding": "No Open Graph tags or canonical link, so a link shared on LinkedIn, Telegram or WhatsApp renders without a title card or image.",
+      "suggested_fix": "Add og:title, og:description, og:image (an absolute URL to a 1200×630 image) and <link rel=\"canonical\"> once the production URL is confirmed."
+    },
+    {
+      "id": "cv-pdf-image-only",
+      "check": "document-text",
+      "target": [
+        "assets/Andrii_Volnianskyi_CV.pdf",
+        "assets/Andrii_Volnianskyi_CV.pdf title"
+      ],
+      "severity": "major",
+      "finding": "The downloadable CV is two full-page pictures (1.4 MB) with no text layer: screen readers read nothing, search finds nothing, and recruiters' applicant-tracking systems cannot parse it. Its PDF title is the working file name \"…_CV_2026_vangogh_colobridge\", which viewers show in the tab.",
+      "suggested_fix": "Export the CV from its source as a text PDF (that also cuts the size) and set the document title to \"Andrii Volnianskyi — English Teacher CV\". Re-review it in web/privacy-review.json."
+    },
+    {
+      "id": "no-mobile-nav",
+      "check": "mobile-nav",
+      "target": "in-page navigation below 800px",
+      "severity": "minor",
+      "finding": "Below 800 px the nav links are hidden (display:none) and nothing replaces them, so phones and tablets, 768 px included, scroll a page about 12,600 px tall at 390 px with no way to jump to a section.",
+      "suggested_fix": "Keep a compact row of the four section links on small screens, or add a menu button with aria-expanded."
+    },
+    {
+      "id": "google-fonts-third-party",
+      "check": "third-party",
+      "target": "https://fonts.googleapis.com",
+      "severity": "info",
+      "finding": "Fonts load from Google, which sends each visitor's IP address to a third party (a GDPR consideration for EU visitors) and adds a render-blocking cross-origin stylesheet. The runtime tests block it, so they measure the fallback fonts.",
+      "suggested_fix": "Self-host the faces in use (Manrope, Playfair Display, DM Mono) as WOFF2 under assets/fonts/."
+    },
+    {
+      "id": "tiny-label-text",
+      "check": "text-floor",
+      "target": [
+        "div.provider-mark small",
+        "div.growth-point span.grade-badge",
+        "div.business-projects span.industry"
+      ],
+      "severity": "minor",
+      "finding": "Labels that carry claims are 7–9 px: the provider names under the future-target marks (7 px), the \"Final grade A\" badges (9 px) and the industry tags on the company cards (9 px).",
+      "suggested_fix": "Raise them to at least 12 px; the 14 px floor for body copy stays."
+    },
+    {
+      "id": "text-runs-together",
+      "check": "text-runs",
+      "target": [
+        "generic: \"Adult & group teaching\" + \"Business communication\"",
+        "generic: \"Business communication\" + \"International teams\"",
+        "generic: \"International teams\" + \"Digital lesson resources\"",
+        "generic: \"PPP\" + \"ESA\"",
+        "generic: \"ESA\" + \"TBL\"",
+        "generic: \"TBL\" + \"Skills-based\"",
+        "generic: \"Skills-based\" + \"Test–teach–test\"",
+        "article: \"Cloud infrastructure · B2B technology\" + \"Germany / Ukraine · 2021–now\"",
+        "article: \"AI & B2B technology\" + \"Ukraine / Europe · 2024–now\"",
+        "article: \"Home services · Construction\" + \"USA · 2023–2024\"",
+        "article: \"Home services · Plumbing\" + \"USA · earlier project\"",
+        "article: \"Consumer services · London\" + \"UK · 2024–2025\"",
+        "article: \"Automotive · Marketing consulting\" + \"Thailand · 2024\"",
+        "article: \"Manufacturing · Building materials\" + \"Ukraine · 2019–2021\"",
+        "article: \"Legal & professional services\" + \"Ukraine · 2018–2019\""
+      ],
+      "severity": "minor",
+      "finding": "Screen readers that read a container's text as one string (NVDA and JAWS in Chrome and Edge) hear neighbouring labels with no break between them: the teaching-value tags (\"Adult & group teachingBusiness communication…\"), the framework pills (\"PPPESATBL…\") and each company card's industry and location (\"…B2B technologyGermany / Ukraine · 2021–now\"). Plain <span>s are not separate objects in the accessibility tree, so their text is joined. Found by an independent review of the accessibility fixes, which introduced and then fixed the same defect on two growth-path cards.",
+      "suggested_fix": "Make the tag and pill groups lists (<ul> with <li>, list-style none) and put each card's industry and location in block elements (<div> or <p>); check the 390 and 1280 renders stay the same."
+    }
+  ]
+}
