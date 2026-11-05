@@ -20,29 +20,41 @@
     <link rel="stylesheet" href="education-positioning.css" />
     <link rel="stylesheet" href="grade-badges.css" />
     <link rel="stylesheet" href="provider-marks.css" />
+    <script>
+      // Hide .reveal sections only while script.js can reveal them; show them if it cannot load or throws.
+      (function (root) {
+        if (!("IntersectionObserver" in window)) return;
+        root.classList.add("js");
+        addEventListener("error", function (e) {
+          var src = (e.target && e.target.src) || e.filename || "";
+          if (/\/script\.js(\?|#|$)/.test(src)) root.classList.remove("js");
+        }, true);
+      })(document.documentElement);
+    </script>
   </head>
   <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <header class="hero" id="top">
       <nav class="nav wrap">
-        <a class="wordmark" href="#top">AV<span>·</span>English</a>
+        <a class="wordmark" href="#top" aria-label="AV English, back to top">AV<span aria-hidden="true">·</span>English</a>
         <div class="nav-links"><a href="#approach">Approach</a><a href="#credentials">Credentials</a><a href="#experience">Experience</a><a href="#business">Business background</a></div>
         <a class="nav-cta" href="mailto:marketing.is.rip@gmail.com">Let’s talk</a>
       </nav>
       <div class="hero-art art-star" aria-hidden="true"></div>
       <div class="hero-art art-almond" aria-hidden="true"></div>
       <div class="hero-content wrap">
-        <div class="portrait-wrap"><img src="assets/andrii.png" alt="Andrii Volnianskyi" /></div>
+        <div class="portrait-wrap"><img src="assets/andrii.png" alt="Andrii Volnianskyi" width="959" height="1280" /></div>
         <div class="hero-copy">
           <p class="eyebrow">English Teacher · Kyiv / Online</p>
           <h1>English for <em>real</em><br />professional life.</h1>
           <p class="hero-intro">I teach with clear goals, meaningful communication and a growing Business English focus — bringing international workplace experience into the classroom.</p>
-          <div class="hero-actions"><a class="button button-light" href="mailto:marketing.is.rip@gmail.com">Contact me</a><a class="text-link" href="assets/Andrii_Volnianskyi_CV.pdf" download>Download CV <span>↓</span></a></div>
+          <div class="hero-actions"><a class="button button-light" href="mailto:marketing.is.rip@gmail.com">Contact me</a><a class="text-link" href="assets/Andrii_Volnianskyi_CV.pdf" download>Download CV <span aria-hidden="true">↓</span></a></div>
         </div>
       </div>
       <div class="hero-proof wrap"><span>PTE Academic C1 <b>84/90</b></span><span>CELTA <b>140 hours · July 2026</b></span><span>CAE scheduled <b>September 2026</b></span></div>
     </header>
 
-    <main>
+    <main id="main">
       <section class="statement wrap reveal" id="approach">
         <p class="eyebrow ink">Teaching direction</p>
         <div><h2>Language learning with purpose, structure and room to speak.</h2><p>I work with adults, groups and school learners. My focus is now Business English: helping professionals communicate more naturally in meetings, presentations, emails and everyday international work.</p></div>
@@ -68,8 +80,8 @@
             <article><i>04</i><h3>Useful feedback</h3><p>ICQs, CCQs, monitoring and progress checks.</p></article>
           </div>
           <div class="identity-transfer">
-            <article class="identity-card"><p class="mini-head">Teaching identity</p><div><i>◎</i><span><b>CELTA into practice</b><small>Intensive input in aims, staging, language analysis, ICQs/CCQs, monitored practice and useful feedback.</small></span></div><div><i>▢</i><span><b>Business English track</b><small>Adults, workplace communication, meetings, presentations and negotiation.</small></span></div><div><i>▯</i><span><b>Language upgrading</b><small>624 hours of advanced C2/CAE development plus 60+ individual native-speaker-topic lessons.</small></span></div></article>
-            <article class="transfer-card"><p class="mini-head">Business English transfer</p><p>Real workplace context for communication-led lessons.</p><ul><li><i>▢</i>Meetings & negotiation</li><li><i>▣</i>Presentations & proposals</li><li><i>◎</i>Purposeful professional feedback</li></ul></article>
+            <article class="identity-card"><p class="mini-head">Teaching identity</p><div><i aria-hidden="true">◎</i><span><b>CELTA into practice</b><small>Intensive input in aims, staging, language analysis, ICQs/CCQs, monitored practice and useful feedback.</small></span></div><div><i aria-hidden="true">▢</i><span><b>Business English track</b><small>Adults, workplace communication, meetings, presentations and negotiation.</small></span></div><div><i aria-hidden="true">▯</i><span><b>Language upgrading</b><small>624 hours of advanced C2/CAE development plus 60+ individual native-speaker-topic lessons.</small></span></div></article>
+            <article class="transfer-card"><p class="mini-head">Business English transfer</p><p>Real workplace context for communication-led lessons.</p><ul><li><i aria-hidden="true">▢</i>Meetings & negotiation</li><li><i aria-hidden="true">▣</i>Presentations & proposals</li><li><i aria-hidden="true">◎</i>Purposeful professional feedback</li></ul></article>
           </div>
         </div>
       </section>
@@ -79,25 +91,25 @@
       <section class="credentials wrap reveal" id="credentials">
         <div class="section-head"><p class="eyebrow ink">Evidence of development</p><h2>A learning curve — from C1 to CPE.</h2></div>
         <p class="growth-lead">A dated pathway combining language development, externally assessed evidence and classroom practice — with CPE as the next language milestone.</p>
-        <div class="growth-path" aria-label="Learning pathway from C1 to CPE">
+        <div class="growth-path" role="list" aria-label="Learning pathway from C1 to CPE">
           <svg class="growth-line" viewBox="0 0 1200 250" preserveAspectRatio="none" aria-hidden="true"><path d="M 28 178 C 108 178, 145 154, 200 152 S 322 125, 372 123 S 492 94, 544 92 S 662 64, 716 62 S 836 35, 888 34 S 1005 17, 1072 17 S 1133 9, 1172 9" /></svg>
-          <article class="growth-point c1"><span class="level">C1</span><time>2022</time><img class="cert-logo yappi" src="assets/logos/yappi.png" alt="Yappi Language School" /><h3>100 hours of Business English</h3><span class="grade-badge">Final grade A</span><p>Three Yappi courses completed · course-specific evidence below</p></article>
-          <article class="growth-point pte"><span class="level">C1</span><time>Aug 2024</time><img class="cert-logo pearson" src="assets/logos/pearson.png" alt="Pearson" /><h3>PTE Academic · 84/90</h3><p>L74 · R90 · S87 · W80</p></article>
-          <article class="growth-point c2"><span class="level">C2</span><time>2024–2026</time><img class="cert-logo grade" src="assets/logos/grade.png" alt="Grade Education Centre" /><h3>624 hours of advanced English</h3><span class="grade-badge">Final grade A</span><p>552h repeated C2 study + 72h CAE preparation</p></article>
-          <article class="growth-point speaker"><span class="level">C2</span><time>Ongoing</time><strong>60+</strong><h3>Individual lessons</h3><p>Native-speaker topics and advanced communication practice</p></article>
-          <article class="growth-point celta"><span class="level">Teach</span><time>Jul 2026</time><img class="cert-logo cambridge" src="assets/logos/cambridge-centre.png" alt="Cambridge CELTA centre" /><h3>CELTA intensive input</h3><p>140 hours · methodology into classroom practice</p></article>
-          <article class="growth-point cae"><span class="level">C1</span><time>Sep 2026</time><strong>CAE</strong><h3>Cambridge Advanced</h3><p>Exam scheduled</p></article>
-          <article class="growth-point cpe target"><span class="level">C2</span><time>Target · 2028</time><strong>CPE</strong><h3>Cambridge Proficiency</h3><p>Next language milestone</p></article>
+          <div role="listitem" class="growth-point c1"><span class="level">C1</span><time>2022</time><img class="cert-logo yappi" src="assets/logos/yappi.png" alt="Yappi Language School" width="188" height="78" loading="lazy" /><h3>100 hours of Business English</h3><span class="grade-badge">Final grade A</span><p>Three Yappi courses completed · course-specific evidence below</p></div>
+          <div role="listitem" class="growth-point pte"><span class="level">C1</span><time datetime="2024-08">Aug 2024</time><img class="cert-logo pearson" src="assets/logos/pearson.png" alt="Pearson" width="430" height="120" loading="lazy" /><h3>PTE Academic · 84/90</h3><p>L74 · R90 · S87 · W80</p></div>
+          <div role="listitem" class="growth-point c2"><span class="level">C2</span><div class="period">2024–2026</div><img class="cert-logo grade" src="assets/logos/grade.png" alt="Grade Education Centre" width="230" height="69" loading="lazy" /><h3>624 hours of advanced English</h3><span class="grade-badge">Final grade A</span><p>552h repeated C2 study + 72h CAE preparation</p></div>
+          <div role="listitem" class="growth-point speaker"><span class="level">C2</span><div class="period">Ongoing</div><strong>60+</strong><h3>Individual lessons</h3><p>Native-speaker topics and advanced communication practice</p></div>
+          <div role="listitem" class="growth-point celta"><span class="level">Teach</span><time datetime="2026-07">Jul 2026</time><img class="cert-logo cambridge" src="assets/logos/cambridge-centre.png" alt="Cambridge CELTA centre" width="230" height="76" loading="lazy" /><h3>CELTA intensive input</h3><p>140 hours · methodology into classroom practice</p></div>
+          <div role="listitem" class="growth-point cae"><span class="level">C1</span><time datetime="2026-09">Sep 2026</time><strong>CAE</strong><h3>Cambridge Advanced</h3><p>Exam scheduled</p></div>
+          <div role="listitem" class="growth-point cpe target"><span class="level">C2</span><time datetime="2028">Target · 2028</time><strong>CPE</strong><h3>Cambridge Proficiency</h3><p>Next language milestone</p></div>
         </div>
         <div class="future-targets"><div><p class="eyebrow ink">Forward plan</p><h3>Professional targets beyond the current curve.</h3></div><div class="target-grid"><article><div class="provider-mark trinity">TRINITY<small>College London</small></div><time>2027</time><b>Trinity CertPT</b><span>Certificate for Practising Teachers · Business English teaching context</span></article><article><div class="provider-mark cim">CIM<small>Chartered Institute of Marketing</small></div><time>2027</time><b>CIM qualification</b><span>Marketing and commercial expertise · exact award to be selected</span></article><article><div class="provider-mark cambridge">Cambridge<small>English</small></div><time>2028</time><b>CPE</b><span>Cambridge Proficiency · language-development target</span></article></div></div>
         <div class="certificate-evidence">
           <div><p class="eyebrow ink">Certificate evidence</p><h3>Not just marks — the original documents.</h3></div>
           <div class="certificate-gallery">
-            <a href="assets/certificates/general-english-c2-part-1.png" target="_blank" rel="noreferrer"><img src="assets/certificates/general-english-c2-part-1.png" alt="General English C2 certificate, Course 1 Part 1" /><span>General English C2 · verified course evidence</span></a>
-            <a href="assets/certificates/cae-preparation-c1.png" target="_blank" rel="noreferrer"><img src="assets/certificates/cae-preparation-c1.png" alt="CAE Preparation C1 certificate" /><span>CAE preparation · 72h · advanced pathway evidence</span></a>
-            <a href="assets/certificates/general-english-c2-part-2.png" target="_blank" rel="noreferrer"><img src="assets/certificates/general-english-c2-part-2.png" alt="General English C2 certificate, Course 1" /><span>General English C2 · Part 2</span></a>
-            <a href="assets/certificates/pte-academic-score-report.png" target="_blank" rel="noreferrer"><img src="assets/certificates/pte-academic-score-report.png" alt="Pearson PTE Academic score report" /><span>PTE Academic · score report</span></a>
-            <a href="assets/certificates/yappi-business-english.png" target="_blank" rel="noreferrer"><img src="assets/certificates/yappi-business-english.png" alt="Yappi Business English certificate, one of three completed courses" /><span>Yappi Business English · one of three courses</span></a>
+            <a href="assets/certificates/general-english-c2-part-1.png" target="_blank" rel="noreferrer"><img src="assets/certificates/general-english-c2-part-1.png" alt="General English C2 certificate, Course 1 Part 1" width="5263" height="3721" loading="lazy" /><span>General English C2 · verified course evidence</span></a>
+            <a href="assets/certificates/cae-preparation-c1.png" target="_blank" rel="noreferrer"><img src="assets/certificates/cae-preparation-c1.png" alt="CAE Preparation C1 certificate" width="5263" height="3721" loading="lazy" /><span>CAE preparation · 72h · advanced pathway evidence</span></a>
+            <a href="assets/certificates/general-english-c2-part-2.png" target="_blank" rel="noreferrer"><img src="assets/certificates/general-english-c2-part-2.png" alt="General English C2 certificate, Course 1" width="5263" height="3721" loading="lazy" /><span>General English C2 · Part 2</span></a>
+            <a href="assets/certificates/pte-academic-score-report.png" target="_blank" rel="noreferrer"><img src="assets/certificates/pte-academic-score-report.png" alt="Pearson PTE Academic score report" width="638" height="893" loading="lazy" /><span>PTE Academic · score report</span></a>
+            <a href="assets/certificates/yappi-business-english.png" target="_blank" rel="noreferrer"><img src="assets/certificates/yappi-business-english.png" alt="Yappi Business English certificate, one of three completed courses" width="800" height="557" loading="lazy" /><span>Yappi Business English · one of three courses</span></a>
           </div>
         </div>
       </section>
@@ -105,9 +117,9 @@
       <section class="experience wrap reveal" id="experience">
         <div class="experience-heading"><p class="eyebrow ink">Experience</p><h2>Teaching backed by a global business perspective.</h2></div>
         <div class="timeline">
-          <article><time>2026 — now</time><div><h3>English Teacher · KITTERA Private Lyceum</h3><p>Communicative lessons adapted to learners’ needs, age and classroom dynamics.</p></div></article>
-          <article><time>2023 — 2024</time><div><h3>English Teacher · eCademy</h3><p>Adult individual and group classes, interactive materials and measurable feedback.</p></div></article>
-          <article><time>2017 — 2021</time><div><h3>Private English Tutor</h3><p>Speaking, listening, reading, writing, exam support and confidence-building practice.</p></div></article>
+          <article><span class="period">2026 — now</span><div><h3>English Teacher · KITTERA Private Lyceum</h3><p>Communicative lessons adapted to learners’ needs, age and classroom dynamics.</p></div></article>
+          <article><span class="period">2023 — 2024</span><div><h3>English Teacher · eCademy</h3><p>Adult individual and group classes, interactive materials and measurable feedback.</p></div></article>
+          <article><span class="period">2017 — 2021</span><div><h3>Private English Tutor</h3><p>Speaking, listening, reading, writing, exam support and confidence-building practice.</p></div></article>
         </div>
       </section>
 
@@ -117,20 +129,20 @@
           <article><b data-count="8">8+</b><span>years in marketing & leadership</span></article><article><b data-count="4">4</b><span>international markets: US, Germany, UK, Thailand</span></article><article><b data-count="30">30%</b><span>sales growth delivered in B2C manufacturing</span></article><article><b data-count="280">280%</b><span>improvement in marketing ROI</span></article>
         </div>
         <div class="business-projects">
-          <article><div class="company-logo"><img src="assets/companies/colobridge.svg" alt="Colobridge logo" /></div><span class="industry">Cloud infrastructure · B2B technology</span><span>Germany / Ukraine · 2021–now</span><h3>Colobridge</h3><p>Head of Marketing for a German cloud-infrastructure provider: European B2B go-to-market, LinkedIn, email, Google Ads, SEO, PR and budget leadership.</p></article>
-          <article><div class="company-logo"><img src="assets/companies/beinf.png" alt="beinf.ai logo" /></div><span class="industry">AI & B2B technology</span><span>Ukraine / Europe · 2024–now</span><h3>Beinf</h3><p>Separate technology-brand work within the portfolio: positioning, demand-generation support, content and multi-channel communications for B2B audiences.</p></article>
-          <article><div class="company-logo"><img src="assets/companies/cool-cat-fence.svg" alt="Cool Cat Fence logo" /></div><span class="industry">Home services · Construction</span><span>USA · 2023–2024</span><h3>Cool Cat Fence · Seattle</h3><p>Marketing leadership for a competitive residential-fencing business: attribution, PPC coordination, email automation and brand awareness.</p></article>
-          <article><div class="company-logo"><img src="assets/companies/almco-plumbing.svg" alt="Almco Plumbing logo" /></div><span class="industry">Home services · Plumbing</span><span>USA · earlier project</span><h3>Almco Plumbing</h3><p>Led a 10+ person performance-marketing team across Google, Bing, Meta, TikTok, analytics, SEO and video; supported sustained monthly sales growth.</p></article>
-          <article><div class="company-logo"><img src="assets/companies/iron-free.svg" alt="Iron Free logo" /></div><span class="industry">Consumer services · London</span><span>UK · 2024–2025</span><h3>Iron Free</h3><p>Digital-growth project: campaigns, CRM automation and conversion optimisation to support service-business growth.</p></article>
-          <article><div class="company-logo"><img src="assets/companies/cardigit.svg" alt="CarDigit logo" /></div><span class="industry">Automotive · Marketing consulting</span><span>Thailand · 2024</span><h3>CarDigit · Bangkok</h3><p>Go-to-market consulting for an automotive advertising business, including commercial strategy and marketing and sales hiring support.</p></article>
-          <article><div class="company-logo"><img src="assets/companies/darwin.png" alt="Darwin logo" /></div><span class="industry">Manufacturing · Building materials</span><span>Ukraine · 2019–2021</span><h3>Darwin</h3><p>B2B/B2C marketing for window manufacturing: positioning, dealer-network communications and results including 30% sales growth and 280% ROI improvement.</p></article>
+          <article><div class="company-logo"><img src="assets/companies/colobridge.svg" alt="Colobridge logo" width="216" height="81" loading="lazy" /></div><span class="industry">Cloud infrastructure · B2B technology</span><span>Germany / Ukraine · 2021–now</span><h3>Colobridge</h3><p>Head of Marketing for a German cloud-infrastructure provider: European B2B go-to-market, LinkedIn, email, Google Ads, SEO, PR and budget leadership.</p></article>
+          <article><div class="company-logo"><img src="assets/companies/beinf.png" alt="beinf.ai logo" width="102" height="34" loading="lazy" /></div><span class="industry">AI & B2B technology</span><span>Ukraine / Europe · 2024–now</span><h3>Beinf</h3><p>Separate technology-brand work within the portfolio: positioning, demand-generation support, content and multi-channel communications for B2B audiences.</p></article>
+          <article><div class="company-logo"><img src="assets/companies/cool-cat-fence.svg" alt="Cool Cat Fence logo" width="504" height="259" loading="lazy" /></div><span class="industry">Home services · Construction</span><span>USA · 2023–2024</span><h3>Cool Cat Fence · Seattle</h3><p>Marketing leadership for a competitive residential-fencing business: attribution, PPC coordination, email automation and brand awareness.</p></article>
+          <article><div class="company-logo"><img src="assets/companies/almco-plumbing.svg" alt="Almco Plumbing logo" width="184" height="184" loading="lazy" /></div><span class="industry">Home services · Plumbing</span><span>USA · earlier project</span><h3>Almco Plumbing</h3><p>Led a 10+ person performance-marketing team across Google, Bing, Meta, TikTok, analytics, SEO and video; supported sustained monthly sales growth.</p></article>
+          <article><div class="company-logo"><img src="assets/companies/iron-free.svg" alt="Iron Free logo" width="40" height="30" loading="lazy" /></div><span class="industry">Consumer services · London</span><span>UK · 2024–2025</span><h3>Iron Free</h3><p>Digital-growth project: campaigns, CRM automation and conversion optimisation to support service-business growth.</p></article>
+          <article><div class="company-logo"><img src="assets/companies/cardigit.svg" alt="CarDigit logo" width="271" height="24" loading="lazy" /></div><span class="industry">Automotive · Marketing consulting</span><span>Thailand · 2024</span><h3>CarDigit · Bangkok</h3><p>Go-to-market consulting for an automotive advertising business, including commercial strategy and marketing and sales hiring support.</p></article>
+          <article><div class="company-logo"><img src="assets/companies/darwin.png" alt="Darwin logo" width="2150" height="441" loading="lazy" /></div><span class="industry">Manufacturing · Building materials</span><span>Ukraine · 2019–2021</span><h3>Darwin</h3><p>B2B/B2C marketing for window manufacturing: positioning, dealer-network communications and results including 30% sales growth and 280% ROI improvement.</p></article>
           <article><div class="project-logo gryphon"><span>G</span><b>GRYPHON<br />GROUP</b></div><span class="industry">Legal & professional services</span><span>Ukraine · 2018–2019</span><h3>Gryphon Group</h3><p>PR for a legal-services group: events, reputation work, stakeholder communications and professional materials.</p></article>
         </div>
       </section>
       <section class="education-positioning wrap reveal"><article><p class="eyebrow">Education</p><h2>Master’s degree in Law</h2><p>National University “Odesa Law Academy” · 2013–2019</p><small>Legal training strengthened analytical thinking, structure, argumentation and precise written communication.</small></article><article><p class="eyebrow">Positioning line</p><h2>Business-minded English teaching.</h2><p>English teacher developing into a Business English teacher: CELTA-informed methodology, advanced language development and real international commercial experience.</p></article></section>
     </main>
 
-    <footer><div class="wrap footer-inner"><div><a class="wordmark" href="#top">AV<span>·</span>English</a><p>English Teacher · Business English direction</p></div><div class="contact"><a href="mailto:marketing.is.rip@gmail.com">marketing.is.rip@gmail.com</a><a href="tel:+380684348453">+38 068 434 8453</a><a href="https://www.linkedin.com/in/andrii-v-57106311b/" target="_blank" rel="noreferrer">LinkedIn ↗</a></div></div></footer>
+    <footer><div class="wrap footer-inner"><div><a class="wordmark" href="#top" aria-label="AV English, back to top">AV<span aria-hidden="true">·</span>English</a><p>English Teacher · Business English direction</p></div><div class="contact"><a href="mailto:marketing.is.rip@gmail.com">marketing.is.rip@gmail.com</a><a href="tel:+380684348453">+38 068 434 8453</a><a href="https://www.linkedin.com/in/andrii-v-57106311b/" target="_blank" rel="noreferrer">LinkedIn <span aria-hidden="true">↗</span></a></div></div></footer>
     <script src="script.js"></script>
   </body>
 </html>

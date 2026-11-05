@@ -1,0 +1,42 @@
+{
+  "skill": "teacher-format-test",
+  "about": "Routing evals: should_trigger true means the model reaches for this skill on its own; false is a near miss.",
+  "queries": [
+    {
+      "query": "Build the Use of English test for December with a coverage matrix.",
+      "should_trigger": true
+    },
+    {
+      "query": "Make the December test for Grade 10: multiple choice and one-word gaps on the past tenses and the present perfect.",
+      "should_trigger": true
+    },
+    {
+      "query": "Does the new Use of English paper cover every grammar rule in the learning plan? Recompute its coverage matrix.",
+      "should_trigger": true
+    },
+    {
+      "query": "Write the speaking test cards for the trio, B2 First style, with marking criteria.",
+      "should_trigger": true
+    },
+    {
+      "query": "Is this Use of English practice paper really B2 First format? Check its part counts and labels.",
+      "should_trigger": true
+    },
+    {
+      "query": "Make a writing test with a line graph, IELTS Task 1-style, from a dated NASA data snapshot.",
+      "should_trigger": true
+    },
+    {
+      "query": "Check the timers on the CAE speaking hub page.",
+      "should_trigger": false
+    },
+    {
+      "query": "The Use of English tests are marked. What should we revise before Unit 39?",
+      "should_trigger": false
+    },
+    {
+      "query": "Make the dyslexia version of the December Use of English paper.",
+      "should_trigger": false
+    }
+  ]
+}

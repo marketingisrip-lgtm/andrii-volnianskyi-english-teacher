@@ -1,0 +1,5 @@
+interface:
+  display_name: "Quizlet set builder"
+  short_description: "Lesson-bound Quizlet sets: traced chunk cards, a checked import text, spaced review, a private registry"
+policy:
+  allow_implicit_invocation: true

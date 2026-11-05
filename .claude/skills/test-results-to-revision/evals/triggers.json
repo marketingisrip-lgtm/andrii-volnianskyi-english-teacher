@@ -1,0 +1,38 @@
+{
+  "skill": "test-results-to-revision",
+  "about": "Routing evals: should_trigger true means the model reaches for this skill on its own; false is a near miss.",
+  "queries": [
+    {
+      "query": "The Use of English tests are marked. What should we revise before Unit 39?",
+      "should_trigger": true
+    },
+    {
+      "query": "I have this week's test results: how many of the 7 got each item wrong. Enter them and tell me which rules the group missed.",
+      "should_trigger": true
+    },
+    {
+      "query": "What should we revise after the tests? I want a class results summary without any names in it.",
+      "should_trigger": true
+    },
+    {
+      "query": "Plan revision before Unit 39 from the marked writing and speaking tests. I have the band counts for each criterion.",
+      "should_trigger": true
+    },
+    {
+      "query": "After the practice paper the learners wrote down their two rules to revise. Here is a tally of the codes they chose. Does it match what the class actually got wrong?",
+      "should_trigger": true
+    },
+    {
+      "query": "What keeps coming up in my TP feedback?",
+      "should_trigger": false
+    },
+    {
+      "query": "Build the December Use of English test with a coverage matrix.",
+      "should_trigger": false
+    },
+    {
+      "query": "Turn my watch-list of errors from today's speaking lesson into a remedial stage for Monday.",
+      "should_trigger": false
+    }
+  ]
+}
