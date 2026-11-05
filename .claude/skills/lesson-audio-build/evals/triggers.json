@@ -1,0 +1,38 @@
+{
+  "skill": "lesson-audio-build",
+  "about": "Routing evals: should_trigger true means the model reaches for this skill on its own; false is a near miss.",
+  "queries": [
+    {
+      "query": "Record listen-and-check audio for Unit 39 exercises 1 and 3.",
+      "should_trigger": true
+    },
+    {
+      "query": "Make the audio for the NASA listening script V5 with a British AI voice.",
+      "should_trigger": true
+    },
+    {
+      "query": "Is the L15 audio the same as the script? Check recording v7 against script V5.",
+      "should_trigger": true
+    },
+    {
+      "query": "Make drill clips for the Unit 41 deck, one clip per target sentence.",
+      "should_trigger": true
+    },
+    {
+      "query": "Re-record the three L17 correction clips that put the stress on the whole date.",
+      "should_trigger": true
+    },
+    {
+      "query": "Does this slide compete with the audio while it plays?",
+      "should_trigger": false
+    },
+    {
+      "query": "Is the L15 listening pack ready to print?",
+      "should_trigger": false
+    },
+    {
+      "query": "Transcribe the voice memo of my teaching practice feedback and pull out the action points.",
+      "should_trigger": false
+    }
+  ]
+}
