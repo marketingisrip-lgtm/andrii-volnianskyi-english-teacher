@@ -262,6 +262,14 @@
       "severity": "minor",
       "finding": "Screen readers that read a container's text as one string (NVDA and JAWS in Chrome and Edge) hear neighbouring labels with no break between them: the teaching-value tags (\"Adult & group teachingBusiness communication…\"), the framework pills (\"PPPESATBL…\") and each company card's industry and location (\"…B2B technologyGermany / Ukraine · 2021–now\"). Plain <span>s are not separate objects in the accessibility tree, so their text is joined. Found by an independent review of the accessibility fixes, which introduced and then fixed the same defect on two growth-path cards.",
       "suggested_fix": "Make the tag and pill groups lists (<ul> with <li>, list-style none) and put each card's industry and location in block elements (<div> or <p>); check the 390 and 1280 renders stay the same."
+    },
+    {
+      "id": "drive-ids-adoption-receipt",
+      "check": "learner-data",
+      "target": "web/ADOPTION_RECEIPT_2026-10-29.md: Drive file or folder ID (4)",
+      "severity": "minor",
+      "finding": "Four Google Drive file and folder IDs sit in the receipt's Sources table (lines 22, 24, 25 and 26). They point to the owner's own skill library folder and to three handoff and format files, not to learners. This repository is public, and a folder shared with anyone who has the link opens from its ID alone.",
+      "suggested_fix": "Owner decision; an agent never edits or deletes them. Either accept them (say so in this finding) or move the IDs to the private Drive copy of the receipt and name the files here by title only, then remove this entry in the same commit."
     }
   ]
 }

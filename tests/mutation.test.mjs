@@ -2,11 +2,19 @@
 // that the matching static check goes red. A check that stays green here proves nothing.
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, writeFileSync, unlinkSync, copyFileSync } from "node:fs";
+import { readFileSync, writeFileSync, unlinkSync, copyFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { runMutant, edit, append } from "./lib/mutant.mjs";
+import { KIND } from "./lib/learner-data.mjs";
 
 const SUITES = ["tests/site.test.mjs", "tests/claims.test.mjs", "tests/agent-assets.test.mjs"];
+
+// Learner data is planted from parts at run time, like the token below, so this file holds no Drive
+// link, Drive ID or filled learner table of its own. The values are synthetic and must never be printed.
+const LEARNER_TEST = "no learner data or Drive links are committed";
+const PLANTED = { name: "Planted Learnername", said: "I have went to Lviv", id: `1${"PlantedFolderId".repeat(2)}x` };
+const row = (...cells) => `| ${cells.join(" | ")} |`;
+const table = (header, ...rows) => `\n${[row(...header), row(...header.map(() => "---")), ...rows.map((r) => row(...r))].join("\n")}\n`;
 
 async function failingTests(mutate) {
   const { ran, failed, stderr } = await runMutant(mutate, SUITES);
@@ -47,6 +55,7 @@ const MUTANTS = [
   ["ship a new certificate nobody reviewed for personal data", (root) => copyFileSync(path.join(root, "assets/certificates/yappi-business-english.png"), path.join(root, "assets/certificates/yappi-copy.png")), "every shipped document was reviewed for personal data"],
   // Built at run time, so this file never holds the token shape it plants.
   ["commit an access token", append("web/PROCEDURES.md", `\ntoken: ${"ghp_"}${"x".repeat(36)}\n`), "no credentials are committed"],
+  ["commit a monitoring log with a student's line", append("web/PROCEDURES.md", table(["Time", "Student said", "Correction", "Type (G/V/P)", "Recycled?"], ["10:05", PLANTED.said, "I went to Lviv", "G", "no"])), LEARNER_TEST],
   ["let Codex's invocation policy disagree with Claude's", edit(".claude/skills/site-verify/agents/openai.yaml", "allow_implicit_invocation: true", "allow_implicit_invocation: false"), "skill site-verify: valid for Codex (agents/openai.yaml)"],
   ["leave a trigger list on a user-invoked skill", edit(".claude/skills/web-release/SKILL.md", "before production.", "before production. Use it when Andrii says deploy."), "skill web-release: valid for Claude Code"],
   ["give a subagent a tool that does not exist", edit(".claude/agents/site-verifier.md", "tools: Bash, Read, Grep, Glob", "tools: Bash, Read, Grep, Glob, Teleport"), "agent site-verifier: valid subagent definition"],
@@ -82,6 +91,12 @@ const ALLOWED = [
     lines[i] = lines[i].replace('<div role="listitem"', '<div><div role="listitem"') + "</div>";
     writeFileSync(file, lines.join("\n"));
   }],
+  // Fictional people, empty templates and class-level figures may live here (learner-data-guard).
+  ["stage a page with fictional avatar role cards", (root) => {
+    writeFileSync(path.join(root, "roles-review.html"), readFileSync(path.join(root, "index.html"), "utf8"));
+    edit("roles-review.html", '<main id="main">', '<main id="main"><table><tr><th>Avatar</th><th>Tier</th><th>Role card</th></tr><tr><td>Nova</td><td>1</td><td>Pilot</td></tr><tr><td>Kai</td><td>2</td><td>Engineer</td></tr></table>')(root);
+  }],
+  ["keep a monitoring-log template and a class average in the procedures", append("web/PROCEDURES.md", table(["Time", "Student said", "Correction"], ["", "", ""], ["<time>", "<what the student said>", "<correction>"]) + table(["Learners", "Mean score /18"], ["Class (7)", "14"]))],
 ];
 
 // Each mutant is an independent copy, so they run four at a time.
@@ -99,5 +114,37 @@ describe("planted defects", { concurrency: 4 }, () => {
   }
   test("the unmutated copy passes every check", async () => {
     assert.deepEqual(await failingTests(() => {}), []);
+  });
+  // One copy holding every kind, so each rule and each reader (Markdown, CSV, HTML, paths, names) is
+  // shown to fire, and the report is shown to give places and kinds while the values stay out of it.
+  test("catches every kind of learner data, naming the place and kind but never the value", async () => {
+    const lesson = `lessons/1-1 Lessons/${PLANTED.name}/2026-10-05_U36_Present-perfect`;
+    const { ran, failed, output, stderr } = await runMutant((root) => {
+      const put = (file, text) => {
+        mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+        writeFileSync(path.join(root, file), text);
+      };
+      put(`${lesson}/Monitoring Log.md`, table(["Time", "Student said", "Correction"], ["10:05", PLANTED.said, "I went to Lviv"]));
+      put("web/uoe-test.csv", `Student,UoE /18\n${PLANTED.name},13\n`);
+      put("web/grade10 roster.xlsx", "planted");
+      put("scores-review.html", readFileSync(path.join(root, "index.html"), "utf8").replace("</main>", `<table><tr><th>Learner</th><th>Mark</th></tr><tr><td>${PLANTED.name}</td><td>12</td></tr></table></main>`));
+      append("web/PROCEDURES.md", `${table(["Learner", "Tier"], [PLANTED.name, "1"])}\nClass folder: https://${"drive"}.google.com/drive/folders/${PLANTED.id}\nDrive folder ${PLANTED.id}\n`)(root);
+    }, SUITES);
+    assert.ok(ran >= 30, `child run executed ${ran} tests; stderr: ${stderr.slice(0, 500)}`);
+    assert.ok(failed.includes(LEARNER_TEST), `expected "${LEARNER_TEST}" to fail; failing tests were: ${JSON.stringify(failed)}`);
+    const masked = lesson.replace(PLANTED.name, "<learner folder>");
+    const expected = [
+      `lessons/1-1 Lessons/: ${KIND.folder} (1)`,
+      `${masked}/: ${KIND.logFile} (1)`,
+      `${masked}/Monitoring Log.md: ${KIND.log} (1)`,
+      `web/uoe-test.csv: ${KIND.scores} (1)`,
+      `scores-review.html: ${KIND.scores} (1)`,
+      `web/: ${KIND.rosterFile} (1)`,
+      `web/PROCEDURES.md: ${KIND.roster} (1)`,
+      `web/PROCEDURES.md: ${KIND.link} (1)`,
+      `web/PROCEDURES.md: ${KIND.id} (1)`,
+    ];
+    assert.deepEqual(expected.filter((finding) => !output.includes(finding)), [], "these planted findings were not reported");
+    assert.deepEqual(Object.entries(PLANTED).filter(([, value]) => output.includes(value)).map(([kind]) => kind), [], "the report printed a planted value");
   });
 });

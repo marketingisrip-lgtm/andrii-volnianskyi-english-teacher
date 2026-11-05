@@ -1,0 +1,38 @@
+{
+  "skill": "learner-data-guard",
+  "about": "Routing evals: should_trigger true means the model reaches for this skill on its own; false is a near miss.",
+  "queries": [
+    {
+      "query": "Merge the 1-1 lessons branch with the student folders and monitoring logs.",
+      "should_trigger": true
+    },
+    {
+      "query": "Add the 1-1 lessons folder to the repo so Codex can work on it too.",
+      "should_trigger": true
+    },
+    {
+      "query": "Commit the monitoring log from today's lesson along with the lesson notes.",
+      "should_trigger": true
+    },
+    {
+      "query": "Save the students' Use of English marks here in the repo so we can plan revision.",
+      "should_trigger": true
+    },
+    {
+      "query": "Push the Grade 10 lesson notes and the class list to GitHub.",
+      "should_trigger": true
+    },
+    {
+      "query": "Rename the CSS class .growth-point.",
+      "should_trigger": false
+    },
+    {
+      "query": "Check that the certificate images on the portfolio have no personal data before I publish.",
+      "should_trigger": false
+    },
+    {
+      "query": "Is the L15 listening pack ready to print?",
+      "should_trigger": false
+    }
+  ]
+}

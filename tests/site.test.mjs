@@ -9,6 +9,7 @@ import { REPO, ROOT, DECORATIVE, readSite, sitePages, isHidden, isLocalRef, cssU
 import { buildToTemp } from "./lib/build.mjs";
 import { judge, ratchet, register } from "./lib/register.mjs";
 import { pdfFacts } from "./lib/pdf.mjs";
+import { learnerDataFindings } from "./lib/learner-data.mjs";
 
 const IMAGE_BUDGET = 500 * 1024;
 const RASTER = /\.(png|jpe?g|webp|gif|ico)$/i;
@@ -304,6 +305,15 @@ test("no credentials are committed", () => {
   }
   assert.deepEqual(found, [], "remove the credential, rotate it, and load it from the environment");
   assert.match(readFileSync(path.join(ROOT, ".gitignore"), "utf8"), /^\.env/m, ".gitignore must ignore .env files");
+});
+
+// This repository is public and the Grade 10 learners are minors (learner-data-guard). Rosters,
+// per-learner scores, monitoring-log rows, per-learner folders and Drive links belong in Andrii's
+// private Drive. Findings give the place, kind and count, never the value. Owner decisions go to
+// web/known-issues.json: the four Drive IDs in the 29 Oct adoption receipt point to his own skill
+// library and handoff files, not to learners, and stay registered until he accepts or moves them.
+test("no learner data or Drive links are committed", () => {
+  judge("learner-data", learnerDataFindings(ROOT));
 });
 
 test("every known-issues entry is re-checked by a test", () => {
