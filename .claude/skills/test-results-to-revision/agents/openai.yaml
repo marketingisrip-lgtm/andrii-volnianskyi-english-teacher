@@ -1,0 +1,5 @@
+interface:
+  display_name: "Test results to revision"
+  short_description: "Marked papers to class revision priorities by rule and lexis set, with learner data kept private"
+policy:
+  allow_implicit_invocation: true

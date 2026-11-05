@@ -1,0 +1,5 @@
+interface:
+  display_name: "Dyslexia variant"
+  short_description: "Build the same-version dyslexia partner of a student file, then check item parity and A4 page fit"
+policy:
+  allow_implicit_invocation: true

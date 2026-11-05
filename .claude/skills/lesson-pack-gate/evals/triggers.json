@@ -1,0 +1,42 @@
+{
+  "skill": "lesson-pack-gate",
+  "about": "Routing evals: should_trigger true means the model reaches for this skill on its own; false is a near miss.",
+  "queries": [
+    {
+      "query": "Is the L15 listening pack ready to print?",
+      "should_trigger": true
+    },
+    {
+      "query": "Check the U39 folder before Monday. Is anything missing or out of date?",
+      "should_trigger": true
+    },
+    {
+      "query": "Can I teach the NASA reading lesson tomorrow? Check that the plan, the key and the handouts agree.",
+      "should_trigger": true
+    },
+    {
+      "query": "What is missing in the Week 2 lesson folder before I teach it again?",
+      "should_trigger": true
+    },
+    {
+      "query": "Codex says the L17 pronunciation pack is finished. Check the pack is ready before I print it.",
+      "should_trigger": true
+    },
+    {
+      "query": "Before I mark the L21 pack as Ready in the schedule, check it properly.",
+      "should_trigger": true
+    },
+    {
+      "query": "Plan a lesson on Unit 39.",
+      "should_trigger": false
+    },
+    {
+      "query": "Is the CAE speaking prep hub page ready to publish?",
+      "should_trigger": false
+    },
+    {
+      "query": "Make the dyslexia version of the L15 T1C handout.",
+      "should_trigger": false
+    }
+  ]
+}
