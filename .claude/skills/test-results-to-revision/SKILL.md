@@ -1,9 +1,11 @@
 ---
 name: test-results-to-revision
 description: >-
-  Use after a Grade 10 test or exam-practice paper is marked, such as "enter the test results", "what
-  should we revise after the tests", "plan revision before Unit 39", "class results summary" or
-  "which rules did the group miss". Takes class-level counts by default (how many learners missed
+  Use after a Grade 10 test or exam-practice paper is marked, or when the rules learners chose to
+  revise (a tally of their codes) should be compared with what the class actually got wrong, such
+  as "enter the test results", "what should we revise after the tests", "plan revision before Unit
+  39", "class results summary", "does their revision tally match their mistakes" or "which rules did
+  the group miss". Takes class-level counts by default (how many learners missed
   each item, and band counts for writing and speaking), joins them with the paper's coverage matrix
   once that matrix is checked, holds items nearly everyone missed as possible item defects, and gives
   error rates by rule, lexis set and gap type. Picks the class's top one or two rules, anchors them

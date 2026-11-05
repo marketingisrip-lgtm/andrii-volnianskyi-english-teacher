@@ -1,10 +1,12 @@
 ---
 name: teacher-format-test
 description: >-
-  Use when building or auditing a Grade 10 test or exam-practice paper, such as "build the Use of
-  English test", "make the December test", "does the test cover every rule", "speaking test cards
-  for the trio", "a writing test with a line graph" or "is this B2 First format". Produces the paper,
-  its dyslexia version and a teacher key with a coverage matrix by rule and by lexis set, a
+  Use when building or auditing a Grade 10 test or exam-practice paper, including checking or
+  recomputing its coverage matrix against the learning plan's rules, such as "build the Use of
+  English test", "make the December test", "does the test cover every rule", "recompute the
+  coverage matrix", "speaking test cards for the trio", "a writing test with a line graph" or "is
+  this B2 First format". Its dyslexia version is built by dyslexia-variant, not here. Produces the
+  paper and a teacher key with a coverage matrix by rule and by lexis set, a
   drilled-in-class source for every item, balanced answer letters, one-word and contraction rules,
   B2 First values checked against the official specification in the knowledge base, and honest
   teacher-format labels. Any rule the plan tests with zero items blocks release.

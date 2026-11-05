@@ -2,9 +2,11 @@
 name: dyslexia-variant
 description: >-
   Use when a student-facing file (handout, tier handout, test paper, cards, domino or game sheet) is
-  made or gets a new version, and when asked which resources lack a dyslexia version, such as "make
-  the dyslexia version of the December test", "which handouts have no dyslexia version", "does the
-  dyslexia sheet still match V23" or "print the dyslexia cards". Builds the same-version dyslexia
+  made or gets a new version, when asked which resources lack a dyslexia version, and before
+  dyslexia versions are printed, to check they keep every task, item, card and answer of the
+  standard set, such as "make the dyslexia version of the December test", "which handouts have no
+  dyslexia version", "does the dyslexia sheet still match V23", "check the dyslexia cards keep every
+  card" or "print the dyslexia cards". Builds the same-version dyslexia
   partner from the pack's single content source, using the house spec measured from files Andrii
   accepted, then reports parity on tasks, items, numbering, options, answers and instructions, and A4
   page fit. Packs stay in Andrii's private Drive, and nothing records who uses the partner.
