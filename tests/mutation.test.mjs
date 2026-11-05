@@ -60,6 +60,7 @@ const MUTANTS = [
   ["leave a trigger list on a user-invoked skill", edit(".claude/skills/web-release/SKILL.md", "before production.", "before production. Use it when Andrii says deploy."), "skill web-release: valid for Claude Code"],
   ["give a subagent a tool that does not exist", edit(".claude/agents/site-verifier.md", "tools: Bash, Read, Grep, Glob", "tools: Bash, Read, Grep, Glob, Teleport"), "agent site-verifier: valid subagent definition"],
   ["point the docs at a script that does not exist", append("web/PROCEDURES.md", "\nThen run `npm run deploy:all`.\n"), "docs name only skills, agents, scripts and files that exist"],
+  ["route to a lesson skill with a typo in its name", edit("CLAUDE.md", "`lesson-pack-gate`", "`lesson-pack-gates`"), "docs name only skills, agents, scripts and files that exist"],
   ["give a date a datetime that disagrees with it", edit("index.html", 'datetime="2024-08"', 'datetime="2024-09"'), "datetime values and accessible-only labels agree with the visible text"],
   ["put a number in an accessible-only label", edit("index.html", 'aria-label="AV English, back to top"', 'aria-label="AV English, 8 years of teaching"'), "datetime values and accessible-only labels agree with the visible text"],
   ["leave an arrow glyph inside link text", edit("index.html", '>LinkedIn <span aria-hidden="true">↗</span></a>', ">LinkedIn ↗</a>"), "decorative glyphs are hidden from screen readers"],

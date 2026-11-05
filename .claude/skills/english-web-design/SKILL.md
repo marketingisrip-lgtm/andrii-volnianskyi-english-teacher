@@ -70,6 +70,8 @@ You remain the only writer.
 - `claims-auditor`: claims versus the ledger and evidence files.
 - `learning-page-examiner`: DELTA tutor and CAE examiner reads (learning pages only).
 - `site-verifier`: runs the suites and reports evidence.
+- `learner-privacy-screen`: learner data in the diff, page, fixture or handoff (any page built from a
+  lesson pack; names kinds, never values).
 
 Treat their reports as inputs: spot-check one finding from each before acting on it.
 

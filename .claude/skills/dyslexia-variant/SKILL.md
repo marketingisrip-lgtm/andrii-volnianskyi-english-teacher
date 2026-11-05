@@ -220,8 +220,11 @@ and 9,600 words took about a second. A PDF without a text layer prints NOT RUN.
 ## 5. Page fit (measure, then look at every page)
 Fixed-height pages with `overflow:hidden` (the L21, L22 and UoE files use them) cut text silently: the
 clipped page still looks full. So measure first. For an HTML file, save this as `fit.cjs` in your
-working folder and run `node fit.cjs partner.html partner.pdf`. It needs Playwright with Chromium (see
-`site-verify` for installing it), and it opens the file the way Andrii does, from disk.
+working folder and run `node fit.cjs partner.html partner.pdf`. It needs Playwright with Chromium, and
+Node finds it only from the script's own folder: in that working folder run
+`npm i playwright && npx playwright install chromium` once (as `site-verify` describes), or run the
+script as `NODE_PATH=<repo>/node_modules node fit.cjs …` when the repo has Playwright installed. It
+opens the file the way Andrii does, from disk.
 
 ```js
 // Print an HTML student file to A4 PDF and name the pages that clip or spill, measured in print layout.

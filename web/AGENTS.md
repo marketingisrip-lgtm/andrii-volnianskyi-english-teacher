@@ -60,6 +60,7 @@ See `web/PROCEDURES.md`.
 - `web-design-reviewer`: design critique and accessibility review from renders, returning a closure table
 - `learning-page-examiner`: DELTA-tutor and CAE-examiner read of a learning page
 - `handoff-verifier`: re-runs every "verified" claim in a Codex handoff
+- `learner-privacy-screen`: learner data in a staged diff, page, fixture or handoff (read-only; names kinds, never values)
 
 ## Account-level skills this guide relies on
 `autonomous-ops` and `account-check` (before any deploy), `llm-delegation` (accepting other models'

@@ -159,9 +159,8 @@ Every place that names a version must name the newest file of that type and vari
 To list every version a saved text names, with the words before it:
 `grep -n -o -E '.{0,40}\b[Vv][0-9]+(\.[0-9]+)?\b' <file>.txt`. For each one, report the title and
 line, the words quoted, the version named and the newest in the folder. Also report:
-- a list of variants that leaves out variants the folder holds (the L15 key header, line 5, names
-  T1A, T1B, T1B dyslexia, T23A and T23B; the folder also holds T1C–T1E, which the key's own line 35
-  assigns);
+- a list of variants that leaves out variants the folder holds (the L15 key header, line 5, leaves
+  out T1C–T1E, which the folder holds and the key's own line 35 assigns);
 - a document that calls a file "not yet built" when the folder holds it (L21 plan, line 51);
 - a file whose own header names another version (the L17 plan's line 1 says "LESSON PLAN V16" in the
   V17 file).
@@ -216,9 +215,9 @@ timers 240/420/720/960/480/720 must print FAIL with 3540 s.
 
 ## 4. Dyslexia partners
 Every standard student file has a dyslexia partner of the same version, or the gap is listed.
-Student files are student handouts (each tier or route variant counts separately), cards, game
-sheets and dominoes; plans, keys, guides and the projected deck are not. A partner's variant is the
-standard variant plus "dyslexia" ("T1B dyslexia", "dyslexia, final"). Its format may differ: L21 and
+Student files are student handouts (each tier or route variant counts separately), test papers,
+cards, game sheets and dominoes; plans, keys, guides and the projected deck are not. A partner's
+variant is the standard variant plus "dyslexia" ("dyslexia", "<variant> dyslexia", "dyslexia, final"). Its format may differ: L21 and
 L22 pair a standard PDF with an HTML partner. The learning plan promises a partner for every
 resource (line 74); in October 8 of 25 standard student files had one.
 - Report each standard file with no partner, and each partner whose version differs. A lesson with
@@ -257,10 +256,12 @@ Answers that differ between the key, the analysis and the plan come from `pack-c
   assignments. In October the L15, UoE and L22 keys did; the L17 and present perfect adverbs guides
   did not. A marker lower down (the L21 key has "NEVER SCREEN-SHARE" on line 5) is a FAIL with its
   line noted, for Andrii to accept or move.
-- A plan or analysis that assigns tiers or roles needs the marker too. One that holds only answers
-  or CCQs gets a note, not a FAIL: plans are read, not projected.
-- The deck is made to be projected and needs no marker. Its answers stay behind a reveal, and no
-  slide shows which learner has which tier or role.
+- A plan or language analysis that holds answers, stress keys, CCQs or tier assignments needs the
+  marker too, as Andrii approved: without it, it is a FAIL, which he may accept in writing for a file
+  he never shows.
+- The deck is the one exception: it is made to be projected, so it cannot carry "never
+  screen-share". Its answers stay behind a reveal, and no slide shows which learner has which tier or
+  role; a deck that breaks either is a FAIL.
 - Student files hold none of these. Grep their text for "key", "answer", "CCQ" and the stress mark
   "ˈ", and read each hit: an answer list or a stress key on a student file is a FAIL.
 

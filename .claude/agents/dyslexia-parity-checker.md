@@ -25,8 +25,8 @@ house tokens in section 2 of `.claude/skills/dyslexia-variant/SKILL.md`. A pair 
 could not open, is NOT RUN.
 
 ## Steps
-1. Inventory. Classify the student-facing files (Student handout, Cards, Game sheets, Domino, and
-   every tier or route variant) and pair each with its dyslexia twin by lesson, type and variant. A
+1. Inventory. Classify the student-facing files (Student handout, Test paper, Cards, Game sheets,
+   Domino, and every tier or route variant) and pair each with its dyslexia twin by lesson, type and variant. A
    twin's variant is the standard variant plus the word "dyslexia" (one accepted twin reads
    "dyslexia, final"), so drop that word and its comma before pairing. Report standard files with no
    twin and twins whose version differs.

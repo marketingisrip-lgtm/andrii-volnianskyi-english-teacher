@@ -14,13 +14,17 @@ const agents = existsSync(AGENTS_DIR) ? readdirSync(AGENTS_DIR).filter((f) => f.
 const pkg = JSON.parse(readFileSync(path.join(REPO, "package.json"), "utf8"));
 
 // Account-level skills synced from claude.ai that repo docs may name (they do not live in this repo).
-const ACCOUNT_SKILLS = new Set(["celta-aims-first", "celta-brief-before-build", "celta-lesson-plan-author", "celta-handout", "celta-lesson-simulation", "celta-error-remediation-planner", "celta-builder-dev-loop", "celta-align", "llm-delegation", "agent-fleet-orchestration", "autonomous-ops", "account-check", "research-intake"]);
+const ACCOUNT_SKILLS = new Set(["celta-aims-first", "celta-brief-before-build", "celta-lesson-plan-author", "celta-handout", "celta-lesson-simulation", "celta-error-remediation-planner", "celta-builder-dev-loop", "celta-align", "llm-delegation", "agent-fleet-orchestration", "autonomous-ops", "account-check", "research-intake", "pdf", "docx", "google-workspace"]);
 // Skills from the owner's Drive library ("Claude Code Skills (Shareable)") that docs cite as sources.
 const LIBRARY_SKILLS = new Set(["learning-page-transfer-gate", "exam-format-contract", "accessibility-review", "professional-identity-verified-only", "claim-provenance-ledger", "creative-verification-discipline", "verification-discipline", "verify-the-set-not-the-item", "visual-asset-preflight", "design-verdict-to-spec", "typo-checker", "deploy-verify-loop", "staged-release", "chat-handoff"]);
 const SKILL_KEYS = new Set(["name", "description", "disable-model-invocation", "user-invocable", "allowed-tools", "argument-hint"]);
 const AGENT_KEYS = new Set(["name", "description", "tools", "model", "color"]);
 const TOOLS = new Set(["Read", "Grep", "Glob", "Bash", "Edit", "Write", "WebFetch", "WebSearch", "Skill"]);
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+// Backticked hyphenated tokens with these prefixes must name a real skill or agent. Values that share a
+// prefix (a known-issues check id) are listed so the check stays strict for everything else.
+const NAMED_PREFIX = /^(celta|cardigit|web|site|claims|english|codex|learning|learner|lesson|dyslexia|test|exam|pack|quizlet|teacher|sensitive|handoff)-/;
+const NOT_NAMES = new Set(["learner-data"]);
 
 /** Frontmatter subset used here: `key: value` scalars and `key: >-` folded blocks. */
 function frontmatter(file) {
@@ -121,7 +125,7 @@ test("docs name only skills, agents, scripts and files that exist", () => {
   for (const doc of docs) {
     const text = readFileSync(path.join(REPO, doc), "utf8");
     for (const [, name] of text.matchAll(/`([a-z0-9]+(?:-[a-z0-9]+)+)`/g))
-      if (/^(celta|cardigit|web|site|claims|english|codex|learning)-/.test(name) && !skills.includes(name) && !agents.includes(name) && !ACCOUNT_SKILLS.has(name) && !LIBRARY_SKILLS.has(name)) problems.push(`${doc}: unknown skill/agent \`${name}\``);
+      if (NAMED_PREFIX.test(name) && !NOT_NAMES.has(name) && !skills.includes(name) && !agents.includes(name) && !ACCOUNT_SKILLS.has(name) && !LIBRARY_SKILLS.has(name)) problems.push(`${doc}: unknown skill/agent \`${name}\``);
     for (const [, script] of text.matchAll(/npm run ([\w-]+(?::[\w-]+)*)/g)) if (!pkg.scripts?.[script]) problems.push(`${doc}: npm run ${script} is not a package.json script`);
     for (const [, file] of text.matchAll(/`((?:tests|web|scripts|\.claude)\/[\w./-]+\.(?:mjs|json|md))`/g)) if (!existsSync(path.join(REPO, file))) problems.push(`${doc}: missing file ${file}`);
   }
