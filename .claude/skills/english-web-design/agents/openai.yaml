@@ -1,0 +1,5 @@
+interface:
+  display_name: "English web design"
+  short_description: "Order of work for Andrii's English-teaching pages: system, staging, gates, reviewers"
+policy:
+  allow_implicit_invocation: true

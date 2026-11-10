@@ -1,0 +1,5 @@
+interface:
+  display_name: "Codex handoff"
+  short_description: "Re-verify a handoff, adopt its workflows as dual-harness assets, write the receipt"
+policy:
+  allow_implicit_invocation: true

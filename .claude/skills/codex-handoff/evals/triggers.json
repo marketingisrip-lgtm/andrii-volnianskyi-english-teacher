@@ -1,0 +1,22 @@
+{
+  "skill": "codex-handoff",
+  "about": "Routing evals: should_trigger true means the model reaches for this skill on its own; false is a near miss.",
+  "queries": [
+    {
+      "query": "Codex finished the design pass and left a completion note in the repo. Import it and adopt its workflows here.",
+      "should_trigger": true
+    },
+    {
+      "query": "Write a handoff for Codex so it can continue the CAE hub where we stopped.",
+      "should_trigger": true
+    },
+    {
+      "query": "Here is an import prompt from Codex: adopt the English web design workflows as our own skills and run the tests it lists.",
+      "should_trigger": true
+    },
+    {
+      "query": "Rename the CSS class .growth-point to .milestone everywhere.",
+      "should_trigger": false
+    }
+  ]
+}

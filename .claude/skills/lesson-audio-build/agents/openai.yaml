@@ -1,0 +1,5 @@
+interface:
+  display_name: "Lesson audio build"
+  short_description: "Key-checked AI-voice lesson audio: owner-approved spend, transcript check, clip map, disclosure"
+policy:
+  allow_implicit_invocation: true

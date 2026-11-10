@@ -1,0 +1,26 @@
+{
+  "skill": "english-web-design",
+  "about": "Routing evals: should_trigger true means the model reaches for this skill on its own; false is a near miss.",
+  "queries": [
+    {
+      "query": "Add a testimonials section to the portfolio page, below the credentials.",
+      "should_trigger": true
+    },
+    {
+      "query": "The hero feels cluttered on mobile. Redesign it so the headline has room to breathe.",
+      "should_trigger": true
+    },
+    {
+      "query": "Restyle the business background section so it matches the rest of the site's look.",
+      "should_trigger": true
+    },
+    {
+      "query": "Build a CAE Speaking Part 2 practice page for my students on this site.",
+      "should_trigger": true
+    },
+    {
+      "query": "Which fonts does the site load?",
+      "should_trigger": false
+    }
+  ]
+}

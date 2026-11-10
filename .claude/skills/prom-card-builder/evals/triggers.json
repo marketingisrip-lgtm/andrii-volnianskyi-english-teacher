@@ -1,0 +1,38 @@
+{
+  "skill": "prom-card-builder",
+  "about": "Routing evals: should_trigger true means the model reaches for this skill on its own; false is a near miss.",
+  "queries": [
+    {
+      "query": "Make Prom cards for U39 and set them as homework.",
+      "should_trigger": true
+    },
+    {
+      "query": "Add the NASA listening phrases to Prom.",
+      "should_trigger": true
+    },
+    {
+      "query": "Set the Prom homework for next week, with review dates.",
+      "should_trigger": true
+    },
+    {
+      "query": "Which Prom set covers V11?",
+      "should_trigger": true
+    },
+    {
+      "query": "Export the U36 car phrases as a file I can upload to Prom.",
+      "should_trigger": true
+    },
+    {
+      "query": "Which coursebook pages have I used this term?",
+      "should_trigger": false
+    },
+    {
+      "query": "Review the vocabulary quiz page before I publish it.",
+      "should_trigger": false
+    },
+    {
+      "query": "The Use of English tests are marked. What should we revise before Unit 39?",
+      "should_trigger": false
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Lesson pack gate"
+  short_description: "Read-only ready check for a Grade 10 lesson pack: files, versions, clock, dyslexia partners, status line"
+policy:
+  allow_implicit_invocation: true
