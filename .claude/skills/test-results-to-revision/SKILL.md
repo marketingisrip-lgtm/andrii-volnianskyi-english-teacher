@@ -9,7 +9,7 @@ description: >-
   each item, and band counts for writing and speaking), joins them with the paper's coverage matrix
   once that matrix is checked, holds items nearly everyone missed as possible item defects, and gives
   error rates by rule, lexis set and gap type. Picks the class's top one or two rules, anchors them
-  to the next real lessons and Quizlet sets, and hands them to the remediation planner. Learner-level
+  to the next real lessons and Prom card sets, and hands them to the remediation planner. Learner-level
   data stays in Andrii's private files and never enters this repository.
 ---
 
@@ -30,7 +30,7 @@ What this skill does not do:
 - It designs no lesson stage. `celta-error-remediation-planner` does (step 6).
 - It builds no paper, key or matrix. `teacher-format-test` does, and the `test-coverage-auditor`
   subagent checks the matrix (step 3).
-- It builds no Quizlet set. `quizlet-set-builder` does, from the lexis sets named here (step 5).
+- It builds no Prom card set. `prom-card-builder` does, from the lexis sets named here (step 5).
 - It never marks or re-marks a paper, a script or a recording.
 - Andrii's own development as a teacher (recurring feedback on his teaching) is not its job.
   Numbers about Andrii on the site belong to `claims-ledger`. A learner's number never reaches the
@@ -311,7 +311,7 @@ is blind: do not use it.
   schedule. The October schedule ends with test week. Until Andrii adds the next lessons, name the
   slot from the learning plan (Unit 39, then Unit 41 after the tests, line 34) and ask him for the
   date. Never invent a lesson or a date.
-- **Lexis:** the lexis sets with the highest word-error rates go to `quizlet-set-builder` as one
+- **Lexis:** the lexis sets with the highest word-error rates go to `prom-card-builder` as one
   targeted revision set for the class, by V code, with the items the class missed most and where each
   was drilled. Never a set named after a learner.
 - **An exam routine is not a rule.** Right words written as two words or misspelt call for a routine
@@ -346,7 +346,7 @@ Held, not for remediation: <item: why> · Exam routine: <one word per gap, spell
   - no group smaller than three: a pair, a trio, the learners who chose a code.
 - **The learning plan:** propose the class priorities as an edit to its "How progress is checked"
   section (line 78), given as file, line, old text and new text, such as "Class priorities after
-  the tests of <dates>: <code> (<meaning>) → <lesson>; lexis <V code> → Quizlet set <title>". Andrii
+  the tests of <dates>: <code> (<meaning>) → <lesson>; lexis <V code> → Prom set <title>". Andrii
   applies it, or asks Claude to through `google-workspace` after `account-check`.
 - **The planning snapshot:** lesson plans read the class-level priorities from
   `PLANNING_SNAPSHOT.md` in the evidence folder (Week 2 plan, line 88; L22 plan, line 5). Offer the
@@ -383,7 +383,7 @@ Gap jobs: | job | gaps | wrong/answers | rate | share as |
 Not ranked: pair or supported work <items> · multiple choice without option counts <items>
 Two-rules tally: agreement <codes> · blind spots <codes> · sent to the wrong rule <item: printed code → what it tests>
 Class priorities: 1. <code, meaning> · <items, rate> · <next slot: lesson, date, folder title> · 2. …
-Hand-offs: remediation planner <sent, or NOT RUN> · Quizlet <V codes> · teacher-format-test <item defects for the next paper>
+Hand-offs: remediation planner <sent, or NOT RUN> · Prom <V codes> · teacher-format-test <item defects for the next paper>
 Learning-plan edit (Andrii approves): | file | line | old text | new text |
 Planning snapshot: <entry, written on his yes, or handed over>
 Privacy scan: <command, hits read> · NOT RUN: <step: why>

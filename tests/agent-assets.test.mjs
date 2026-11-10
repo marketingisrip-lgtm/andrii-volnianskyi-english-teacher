@@ -23,7 +23,7 @@ const TOOLS = new Set(["Read", "Grep", "Glob", "Bash", "Edit", "Write", "WebFetc
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 // Backticked hyphenated tokens with these prefixes must name a real skill or agent. Values that share a
 // prefix (a known-issues check id) are listed so the check stays strict for everything else.
-const NAMED_PREFIX = /^(celta|cardigit|web|site|claims|english|codex|learning|learner|lesson|dyslexia|test|exam|pack|quizlet|teacher|sensitive|handoff)-/;
+const NAMED_PREFIX = /^(celta|cardigit|web|site|claims|english|codex|learning|learner|lesson|dyslexia|test|exam|pack|prom|teacher|sensitive|handoff)-/;
 const NOT_NAMES = new Set(["learner-data"]);
 
 /** Frontmatter subset used here: `key: value` scalars and `key: >-` folded blocks. */

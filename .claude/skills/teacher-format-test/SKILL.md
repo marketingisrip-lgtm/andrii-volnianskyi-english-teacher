@@ -29,8 +29,8 @@ teacher key.
 Related work:
 - `dyslexia-variant` builds the paper's dyslexia partner from the same item list.
 - `lesson-pack-gate` checks the whole test pack before it is called ready.
-- `test-results-to-revision` reads this matrix after marking. `quizlet-set-builder` reads the lexis-set
-  codes and keeps test items out of the class's Quizlet sets.
+- `test-results-to-revision` reads this matrix after marking. `prom-card-builder` reads the lexis-set
+  codes and keeps test items out of the class's Prom sets.
 - The base handout design belongs to the account skill `celta-handout`, and in Claude the account
   skill `celta-align` reviews the content.
 - A quiz or exam-prep page on the website belongs to `learning-page-gate`, not here.
@@ -80,7 +80,7 @@ Read these before writing any item:
 defined G1–G22 and V1–V15 (lines 51–101), including the codes it did not test. Carry every code
 forward with its number, meaning and status. Add new codes at the end (G23, V16 and so on). Never
 renumber a code or reuse a number. A code that was not taught or was excluded keeps its number when it
-comes back: G19, G21 and G22 in October. A code another skill proposes (`quizlet-set-builder` marks
+comes back: G19, G21 and G22 in October. A code another skill proposes (`prom-card-builder` marks
 one "proposed") joins the codebook when Andrii accepts it.
 
 Keep two tab-separated files in the scratch folder. Together they are the paper's single content

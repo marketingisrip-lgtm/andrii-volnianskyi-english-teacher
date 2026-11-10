@@ -1,25 +1,25 @@
 {
-  "skill": "quizlet-set-builder",
+  "skill": "prom-card-builder",
   "about": "Routing evals: should_trigger true means the model reaches for this skill on its own; false is a near miss.",
   "queries": [
     {
-      "query": "Make a Quizlet set from the U39 phrases and set it as homework.",
+      "query": "Make Prom cards for U39 and set them as homework.",
       "should_trigger": true
     },
     {
-      "query": "Add the NASA listening phrases to Quizlet.",
+      "query": "Add the NASA listening phrases to Prom.",
       "should_trigger": true
     },
     {
-      "query": "Set the Quizlet homework for next week, with review dates.",
+      "query": "Set the Prom homework for next week, with review dates.",
       "should_trigger": true
     },
     {
-      "query": "Which Quizlet set covers V11?",
+      "query": "Which Prom set covers V11?",
       "should_trigger": true
     },
     {
-      "query": "Export the U36 car phrases set as text I can paste into Quizlet's import box.",
+      "query": "Export the U36 car phrases as a file I can upload to Prom.",
       "should_trigger": true
     },
     {

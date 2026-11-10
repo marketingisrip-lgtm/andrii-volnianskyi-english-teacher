@@ -1,0 +1,5 @@
+interface:
+  display_name: "Prom card builder"
+  short_description: "Lesson-bound Prom cards: traced chunk cards, a checked tab-separated file, spaced review"
+policy:
+  allow_implicit_invocation: true
