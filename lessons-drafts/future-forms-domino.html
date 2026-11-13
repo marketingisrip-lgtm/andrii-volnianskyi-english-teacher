@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Future Forms Domino</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f8f9fa;--surface:#fff;--text:#202124;--muted:#5f6368;--line:#dadce0;
+  --blue:#1a73e8;--blue-bg:#e8f0fe;--green:#188038;--green-bg:#e6f4ea;
+  --red:#d93025;--red-bg:#fce8e6;--amber:#b06000;--amber-bg:#fef7e0;
+  --c-will:#1a73e8;--c-going:#9334e6;--c-pc:#188038;--c-ps:#e37400;
+  --shadow:0 1px 2px rgba(60,64,67,.3),0 1px 3px 1px rgba(60,64,67,.15);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#202124;--surface:#2d2e31;--text:#e8eaed;--muted:#9aa0a6;--line:#5f6368;
+  --blue:#8ab4f8;--blue-bg:#1c3a5f;--green:#81c995;--green-bg:#1e3a2a;
+  --red:#f28b82;--red-bg:#4a2523;--amber:#fdd663;--amber-bg:#4a3c12;
+  --c-will:#8ab4f8;--c-going:#c58af9;--c-pc:#81c995;--c-ps:#fcad70;
+  --shadow:0 1px 3px rgba(0,0,0,.6);}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 Roboto,system-ui,sans-serif}
+header{background:var(--surface);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:5}
+header h1{font-size:18px;font-weight:500;margin:0;flex:1}
+.btn{min-height:44px;min-width:44px;padding:0 16px;border-radius:4px;border:1px solid var(--line);background:var(--surface);color:var(--blue);font:500 14px Roboto,sans-serif;cursor:pointer}
+.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+@media (prefers-color-scheme:dark){.btn.primary{color:#202124}}
+main{max-width:760px;margin:0 auto;padding:16px}
+.panel{background:var(--surface);border-radius:8px;box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
+.task{font-size:15px;color:var(--muted)}
+.task b{color:var(--text)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:16px;padding:4px 12px;font-size:13px}
+.dot{width:10px;height:10px;border-radius:50%}
+.progress{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:12px}
+.progress i{display:block;height:100%;background:var(--blue);width:0;transition:width .3s}
+#chain{display:flex;flex-direction:column;gap:8px}
+.domino{display:grid;grid-template-columns:1fr 1fr;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:var(--surface)}
+.domino>div{padding:12px}
+.domino .ans{border-right:2px dashed var(--line)}
+.domino .lbl{font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.domino .rule{display:inline-block;margin-top:6px;font-size:12px;font-weight:500;padding:2px 8px;border-radius:10px;color:#fff}
+.open{scroll-margin-top:84px;border:2px solid var(--blue);background:var(--blue-bg)}
+.open .sit{font-weight:500}
+.cue{background:none;border:none;border-bottom:2px dotted var(--blue);color:inherit;font:inherit;padding:2px 1px;min-height:44px;cursor:pointer}
+.cue.on{background:var(--amber-bg);border-bottom-color:var(--amber)}
+#feedback{min-height:24px;padding:12px 16px;border-radius:8px;margin:8px 0;display:none}
+#feedback.ok{display:block;background:var(--green-bg);color:var(--green)}
+#feedback.bad{display:block;background:var(--red-bg);color:var(--red)}
+#feedback.info{display:block;background:var(--amber-bg);color:var(--amber)}
+#tray h2{font-size:16px;font-weight:500;margin:0 0 8px}
+#cards{display:grid;gap:8px}
+.card{text-align:left;min-height:56px;padding:12px 16px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:16px Roboto,sans-serif;cursor:pointer;box-shadow:var(--shadow)}
+.card:hover{border-color:var(--blue)}
+.card.shake{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.mono{font-family:"Roboto Mono",monospace;font-size:28px;letter-spacing:4px;color:var(--blue)}
+.hidden{display:none}
+.result li{margin:4px 0}
+dialog{border:none;border-radius:8px;max-width:520px;background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .rule{color:#202124!important}}
+@media (max-width:480px){.domino{grid-template-columns:1fr}.domino .ans{border-right:none;border-bottom:2px dashed var(--line)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Future Forms · Domino</h1>
+  <button class="btn" id="helpBtn" aria-label="Help">Help</button>
+  <button class="btn" id="restartBtn">Restart</button>
+</header>
+<main>
+  <section class="panel">
+    <div class="task"><b>Your mission:</b> read the situation in the blue box. <b>1)</b> Tap the words that show which future form you need. <b>2)</b> Tap the card that fits. One card is a <b>trap</b>: it looks right but uses the wrong form.</div>
+    <div class="chips" aria-label="Colour key">
+      <span class="chip"><span class="dot" style="background:var(--c-pc)"></span>Present Continuous: plan already fixed</span>
+      <span class="chip"><span class="dot" style="background:var(--c-going)"></span>going to: a plan, or something we can see now</span>
+      <span class="chip"><span class="dot" style="background:var(--c-will)"></span>will: decide now, offer, promise, opinion</span>
+      <span class="chip"><span class="dot" style="background:var(--c-ps)"></span>Present Simple: timetable</span>
+    </div>
+    <div class="progress"><i id="bar"></i></div>
+  </section>
+
+  <section id="chain" aria-live="polite"></section>
+  <div id="feedback" role="status"></div>
+
+  <section class="panel" id="tray">
+    <h2>Card tray ↓</h2>
+    <div id="cards"></div>
+  </section>
+
+  <section class="panel hidden result" id="result"></section>
+</main>
+
+<dialog id="help">
+  <h2 style="margin-top:0;font-weight:500">How to play</h2>
+  <p>A <b>domino</b> has two halves. The left half answers the box before it. The right half is a new situation.</p>
+  <p><b>Evidence words</b> are the words that tell you which form to use, like <i>already booked</i>, <i>look at</i> or <i>I promise</i>. Tap them first.</p>
+  <p>Wrong card? You get a hint. After two wrong tries the right card is shown.</p>
+  <p>Read each finished sentence aloud.</p>
+  <button class="btn primary" onclick="this.closest('dialog').close()">OK</button>
+</dialog>
+
+<script>
+const RULES={
+  pc:{name:'Present Continuous',c:'var(--c-pc)'},
+  going:{name:'going to',c:'var(--c-going)'},
+  will:{name:'will',c:'var(--c-will)'},
+  ps:{name:'Present Simple',c:'var(--c-ps)'}
+};
+// Each step: open situation (with evidence words in [[ ]]), correct answer, rule, hint.
+const STEPS=[
+ {sit:'You [[already booked]] a table at Luigi\'s for Friday.',ans:'We\'re having dinner at Luigi\'s on Friday.',rule:'pc',
+  hint:'The plan is fixed: time, place, booking. Which form is for arrangements?'},
+ {sit:'The phone is ringing. You [[decide now]] to answer it.',ans:'I\'ll get it!',rule:'will',
+  hint:'You decide at the moment of speaking. No plan before.'},
+ {sit:'[[Look at]] those black clouds!',ans:'It\'s going to rain.',rule:'going',
+  hint:'You can see the evidence now. Which form is for “I can see it coming”?'},
+ {sit:'The [[timetable]] says the train goes at 7:45.',ans:'The train leaves at 7:45.',rule:'ps',
+  hint:'Timetables and schedules use a simple form.'},
+ {sit:'You [[decided last week]] to learn Spanish. No course booked yet.',ans:'I\'m going to learn Spanish.',rule:'going',
+  hint:'You decided before now, but nothing is booked. You have a plan, but nothing is booked.'},
+ {sit:'Your friend\'s bag looks heavy. You [[offer]] help.',ans:'I\'ll carry it for you.',rule:'will',
+  hint:'Offers use the same form as quick decisions.'},
+ {sit:'Your [[opinion]] about life in 2050: [[I think]]…',ans:'I think robots will do most housework.',rule:'will',
+  hint:'“I think” + opinion about the future.'},
+ {sit:'Your friend tells you a secret. You [[promise]].',ans:'I won\'t tell anyone, I promise.',rule:'will',
+  hint:'Promises use will / won\'t.', end:true}
+];
+// Trap cards: look almost right, wrong form.
+const TRAPS=[
+ {step:4,ans:'I\'ll learn Spanish.',why:'You decided LAST WEEK, not now. A plan made before → going to.'},
+ {step:2,ans:'It will rain.',why:'You can SEE the clouds now. Evidence now → going to.'}
+];
+let step,tries,shown,firstTry,cueTapped,history;
+const $=id=>document.getElementById(id);
+
+function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+function sitHTML(s){return esc(s).replace(/\[\[(.+?)\]\]/g,(m,w)=>`<button class="cue" onclick="tapCue(this)">${w}</button>`)}
+
+function start(){
+  step=0;tries=0;shown=0;firstTry=0;history=[];$('feedback').className='';
+  $('result').classList.add('hidden');$('tray').classList.remove('hidden');
+  render();
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function render(keepCue){
+  if(!keepCue)cueTapped=false;
+  const ch=$('chain');ch.innerHTML='';
+  history.forEach((h,i)=>{
+    const r=RULES[STEPS[i].rule];
+    ch.insertAdjacentHTML('beforeend',`<div class="domino">
+      <div class="ans"><div class="lbl">${i===0?'Worked example':'Answer'}</div>${esc(h.ans)}<br><span class="rule" style="background:${r.c}">${r.name}</span></div>
+      <div><div class="lbl">Next</div>${i+1<STEPS.length?esc(STEPS[i+1].sit.replace(/\[\[|\]\]/g,'')):'FINISH ★'}</div></div>`);
+  });
+  if(step<STEPS.length){
+    ch.insertAdjacentHTML('beforeend',`<div class="domino open">
+      <div class="ans"><div class="lbl">Open situation</div><span class="sit">${sitHTML(STEPS[step].sit)}</span></div>
+      <div><div class="lbl">Your card goes here</div>?</div></div>`);
+  }
+  $('bar').style.width=(history.length/STEPS.length*100)+'%';
+  // Cards: remaining answers + traps still unused
+  const pool=STEPS.slice(step).map((s,i)=>({ans:s.ans,idx:step+i}));
+  TRAPS.forEach((t,i)=>{if(!t.used&&t.step===step)pool.push({ans:t.ans,trap:i})});
+  const cards=$('cards');cards.innerHTML='';
+  shuffle(pool).forEach(p=>{
+    const b=document.createElement('button');b.className='card';b.textContent=p.ans;
+    b.onclick=()=>pick(p,b);cards.appendChild(b);
+  });
+  if(step>=STEPS.length)finish();
+}
+
+function tapCue(el){el.classList.toggle('on');cueTapped=!!document.querySelector('.cue.on');}
+
+function say(msg,kind){const f=$('feedback');f.className=kind;f.textContent=msg;}
+
+function pick(p,btn){
+  if(!cueTapped){say('First tap the underlined evidence words in the blue box.','info');return;}
+  const s=STEPS[step];
+  if(p.idx===step){
+    if(tries===0)firstTry++;
+    history.push({ans:s.ans});
+    say('✓ Yes! '+RULES[s.rule].name+'. Read the sentence aloud.','ok');
+    step++;tries=0;render();
+    document.querySelector('.open')?.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
+  tries++;btn.classList.add('shake');setTimeout(()=>btn.classList.remove('shake'),400);
+  let msg=p.trap!==undefined?'Trap card! '+TRAPS[p.trap].why:'Not this one. '+s.hint;
+  if(p.trap!==undefined)TRAPS[p.trap].used=true;
+  if(tries>=2){
+    shown++;history.push({ans:s.ans});
+    say('Last card: '+msg+' The right card was: “'+s.ans+'”.','bad');
+    step++;tries=0;render();return;
+  }
+  say(msg,'bad');
+  if(p.trap!==undefined){render(true);if(cueTapped)document.querySelector('.cue').classList.add('on');}
+}
+
+function finish(){
+  $('tray').classList.add('hidden');
+  const n=STEPS.length-1, right=n-shown;
+  const code='FF-'+firstTry+right+shown;
+  const r=$('result');r.classList.remove('hidden');
+  r.innerHTML=`<h2 style="margin-top:0;font-weight:500">Chain complete ★</h2>
+   <p>${right} of ${n} cards right (${firstTry} first time)${shown?' · '+shown+' answer'+(shown>1?'s were':' was')+' shown':''}.</p>
+   <p>Code = first-time · right · shown. Your code (show Andrii): <span class="mono">${code}</span></p>
+   <ol>${STEPS.map(s=>`<li>${esc(s.ans)} <span class="rule" style="background:${RULES[s.rule].c};color:#fff;border-radius:10px;padding:1px 8px;font-size:12px">${RULES[s.rule].name}</span></li>`).join('')}</ol>
+   <button class="btn primary" onclick="init()">Play again</button>`;
+  r.scrollIntoView({behavior:'smooth'});
+}
+
+$('helpBtn').onclick=()=>$('help').showModal();
+function init(){TRAPS.forEach(t=>t.used=false);start();history.push({ans:STEPS[0].ans});step=1;render();}
+$('restartBtn').onclick=init;
+init(); // worked example: first card pre-docked
+</script>
+</body>
+</html>
