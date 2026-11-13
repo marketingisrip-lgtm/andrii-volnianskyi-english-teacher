@@ -42,9 +42,9 @@ main{max-width:760px;margin:0 auto;padding:16px}
 .domino .ans{border-right:2px dashed var(--line)}
 .domino .lbl{font-size:12px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
 .domino .rule{display:inline-block;margin-top:6px;font-size:12px;font-weight:500;padding:2px 8px;border-radius:10px;color:#fff}
-.open{border:2px solid var(--blue);background:var(--blue-bg)}
+.open{scroll-margin-top:84px;border:2px solid var(--blue);background:var(--blue-bg)}
 .open .sit{font-weight:500}
-.cue{background:none;border:none;border-bottom:2px dotted var(--blue);color:inherit;font:inherit;padding:2px 1px;min-height:32px;cursor:pointer}
+.cue{background:none;border:none;border-bottom:2px dotted var(--blue);color:inherit;font:inherit;padding:2px 1px;min-height:44px;cursor:pointer}
 .cue.on{background:var(--amber-bg);border-bottom-color:var(--amber)}
 #feedback{min-height:24px;padding:12px 16px;border-radius:8px;margin:8px 0;display:none}
 #feedback.ok{display:block;background:var(--green-bg);color:var(--green)}
@@ -61,6 +61,7 @@ main{max-width:760px;margin:0 auto;padding:16px}
 .result li{margin:4px 0}
 dialog{border:none;border-radius:8px;max-width:520px;background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
 dialog::backdrop{background:rgba(0,0,0,.4)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .rule{color:#202124!important}}
 @media (max-width:480px){.domino{grid-template-columns:1fr}.domino .ans{border-right:none;border-bottom:2px dashed var(--line)}}
 </style>
 </head>
@@ -72,10 +73,10 @@ dialog::backdrop{background:rgba(0,0,0,.4)}
 </header>
 <main>
   <section class="panel">
-    <div class="task"><b>Your mission:</b> read the open situation (blue box). <b>1)</b> Tap the words that show which future form you need. <b>2)</b> Tap the card that fits. One card is a <b>trap</b>: it looks right but uses the wrong form.</div>
+    <div class="task"><b>Your mission:</b> read the situation in the blue box. <b>1)</b> Tap the words that show which future form you need. <b>2)</b> Tap the card that fits. One card is a <b>trap</b>: it looks right but uses the wrong form.</div>
     <div class="chips" aria-label="Colour key">
       <span class="chip"><span class="dot" style="background:var(--c-pc)"></span>Present Continuous: plan already fixed</span>
-      <span class="chip"><span class="dot" style="background:var(--c-going)"></span>going to: plan or we can see it coming</span>
+      <span class="chip"><span class="dot" style="background:var(--c-going)"></span>going to: a plan, or something we can see now</span>
       <span class="chip"><span class="dot" style="background:var(--c-will)"></span>will: decide now, offer, promise, opinion</span>
       <span class="chip"><span class="dot" style="background:var(--c-ps)"></span>Present Simple: timetable</span>
     </div>
@@ -120,7 +121,7 @@ const STEPS=[
  {sit:'The [[timetable]] says the train goes at 7:45.',ans:'The train leaves at 7:45.',rule:'ps',
   hint:'Timetables and schedules use a simple form.'},
  {sit:'You [[decided last week]] to learn Spanish. No course booked yet.',ans:'I\'m going to learn Spanish.',rule:'going',
-  hint:'You decided before now, but nothing is booked. Intention, not arrangement.'},
+  hint:'You decided before now, but nothing is booked. You have a plan, but nothing is booked.'},
  {sit:'Your friend\'s bag looks heavy. You [[offer]] help.',ans:'I\'ll carry it for you.',rule:'will',
   hint:'Offers use the same form as quick decisions.'},
  {sit:'Your [[opinion]] about life in 2050: [[I think]]…',ans:'I think robots will do most housework.',rule:'will',
@@ -130,24 +131,24 @@ const STEPS=[
 ];
 // Trap cards: look almost right, wrong form.
 const TRAPS=[
- {ans:'I\'ll learn Spanish.',why:'You decided LAST WEEK, not now. A plan made before → going to.'},
- {ans:'It will rain.',why:'You can SEE the clouds now. Evidence now → going to.'}
+ {step:4,ans:'I\'ll learn Spanish.',why:'You decided LAST WEEK, not now. A plan made before → going to.'},
+ {step:2,ans:'It will rain.',why:'You can SEE the clouds now. Evidence now → going to.'}
 ];
-let step,tries,shown,cueTapped,history;
+let step,tries,shown,firstTry,cueTapped,history;
 const $=id=>document.getElementById(id);
 
 function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
 function sitHTML(s){return esc(s).replace(/\[\[(.+?)\]\]/g,(m,w)=>`<button class="cue" onclick="tapCue(this)">${w}</button>`)}
 
 function start(){
-  step=0;tries=0;shown=0;history=[];
+  step=0;tries=0;shown=0;firstTry=0;history=[];$('feedback').className='';
   $('result').classList.add('hidden');$('tray').classList.remove('hidden');
   render();
 }
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 
-function render(){
-  cueTapped=false;
+function render(keepCue){
+  if(!keepCue)cueTapped=false;
   const ch=$('chain');ch.innerHTML='';
   history.forEach((h,i)=>{
     const r=RULES[STEPS[i].rule];
@@ -163,7 +164,7 @@ function render(){
   $('bar').style.width=(history.length/STEPS.length*100)+'%';
   // Cards: remaining answers + traps still unused
   const pool=STEPS.slice(step).map((s,i)=>({ans:s.ans,idx:step+i}));
-  TRAPS.forEach((t,i)=>{if(!t.used)pool.push({ans:t.ans,trap:i})});
+  TRAPS.forEach((t,i)=>{if(!t.used&&t.step===step)pool.push({ans:t.ans,trap:i})});
   const cards=$('cards');cards.innerHTML='';
   shuffle(pool).forEach(p=>{
     const b=document.createElement('button');b.className='card';b.textContent=p.ans;
@@ -180,10 +181,11 @@ function pick(p,btn){
   if(!cueTapped){say('First tap the underlined evidence words in the blue box.','info');return;}
   const s=STEPS[step];
   if(p.idx===step){
+    if(tries===0)firstTry++;
     history.push({ans:s.ans});
     say('✓ Yes! '+RULES[s.rule].name+'. Read the sentence aloud.','ok');
     step++;tries=0;render();
-    $('tray').scrollIntoView({behavior:'smooth',block:'start'});
+    document.querySelector('.open')?.scrollIntoView({behavior:'smooth',block:'start'});
     return;
   }
   tries++;btn.classList.add('shake');setTimeout(()=>btn.classList.remove('shake'),400);
@@ -191,22 +193,21 @@ function pick(p,btn){
   if(p.trap!==undefined)TRAPS[p.trap].used=true;
   if(tries>=2){
     shown++;history.push({ans:s.ans});
-    say(msg+' The right card is: “'+s.ans+'”.','bad');
+    say('Last card: '+msg+' The right card was: “'+s.ans+'”.','bad');
     step++;tries=0;render();return;
   }
   say(msg,'bad');
-  if(p.trap!==undefined)render();
+  if(p.trap!==undefined){render(true);if(cueTapped)document.querySelector('.cue').classList.add('on');}
 }
 
 function finish(){
   $('tray').classList.add('hidden');
-  const right=STEPS.length-shown;
-  // Code = number of cards right without help + rule letters
-  const code=STEPS.map(s=>({pc:'C',going:'G',will:'W',ps:'S'})[s.rule]).join('')+right;
+  const n=STEPS.length-1, right=n-shown;
+  const code='FF-'+firstTry+right+shown;
   const r=$('result');r.classList.remove('hidden');
   r.innerHTML=`<h2 style="margin-top:0;font-weight:500">Chain complete ★</h2>
-   <p>${right} of ${STEPS.length} cards right${shown?' · '+shown+' answer'+(shown>1?'s were':' was')+' shown':''}.</p>
-   <p>Your code (show Andrii): <span class="mono">${code}</span></p>
+   <p>${right} of ${n} cards right (${firstTry} first time)${shown?' · '+shown+' answer'+(shown>1?'s were':' was')+' shown':''}.</p>
+   <p>Code = first-time · right · shown. Your code (show Andrii): <span class="mono">${code}</span></p>
    <ol>${STEPS.map(s=>`<li>${esc(s.ans)} <span class="rule" style="background:${RULES[s.rule].c};color:#fff;border-radius:10px;padding:1px 8px;font-size:12px">${RULES[s.rule].name}</span></li>`).join('')}</ol>
    <button class="btn primary" onclick="init()">Play again</button>`;
   r.scrollIntoView({behavior:'smooth'});
