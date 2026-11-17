@@ -1,0 +1,38 @@
+{
+  "skill": "dyslexia-variant",
+  "about": "Routing evals: should_trigger true means the model reaches for this skill on its own; false is a near miss.",
+  "queries": [
+    {
+      "query": "Make the dyslexia version of the December Use of English paper.",
+      "should_trigger": true
+    },
+    {
+      "query": "Which handouts in the Grade 10 lesson folders still have no dyslexia version?",
+      "should_trigger": true
+    },
+    {
+      "query": "I've just made V24 of the NASA listening handouts. Update the dyslexia versions so they match.",
+      "should_trigger": true
+    },
+    {
+      "query": "Does the dyslexia sheet still match V23 of the listening handout? Check every item and the page fit.",
+      "should_trigger": true
+    },
+    {
+      "query": "Before I print the dyslexia cards for the line-graph speaking lesson, check they keep every card from the standard set.",
+      "should_trigger": true
+    },
+    {
+      "query": "Design the worksheet for the U39 lesson.",
+      "should_trigger": false
+    },
+    {
+      "query": "Check that the new phrasal-verbs practice page works with a keyboard and at 320 px.",
+      "should_trigger": false
+    },
+    {
+      "query": "Is the L15 listening pack ready to print?",
+      "should_trigger": false
+    }
+  ]
+}

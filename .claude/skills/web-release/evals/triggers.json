@@ -1,0 +1,14 @@
+{
+  "skill": "web-release",
+  "about": "User-invoked: only /web-release may run it, so the model must never reach for it.",
+  "queries": [
+    {
+      "query": "Deploy the site to production now.",
+      "should_trigger": false
+    },
+    {
+      "query": "Publish the latest version of the portfolio.",
+      "should_trigger": false
+    }
+  ]
+}

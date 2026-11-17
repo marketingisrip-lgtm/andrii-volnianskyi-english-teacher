@@ -1,0 +1,22 @@
+{
+  "skill": "site-verify",
+  "about": "Routing evals: should_trigger true means the model reaches for this skill on its own; false is a near miss.",
+  "queries": [
+    {
+      "query": "I just edited styles.css. Check that nothing on the site broke.",
+      "should_trigger": true
+    },
+    {
+      "query": "Is my change to the portfolio page ready to call done? Run whatever checks we have.",
+      "should_trigger": true
+    },
+    {
+      "query": "Did my edit to script.js break the reveal animations on the site?",
+      "should_trigger": true
+    },
+    {
+      "query": "How many CSS files does the site have?",
+      "should_trigger": false
+    }
+  ]
+}

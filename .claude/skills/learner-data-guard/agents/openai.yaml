@@ -1,0 +1,5 @@
+interface:
+  display_name: "Learner data guard"
+  short_description: "Keep learner names, scores, monitoring logs and Drive links out of this public repo before a commit"
+policy:
+  allow_implicit_invocation: true

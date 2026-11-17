@@ -1,0 +1,5 @@
+interface:
+  display_name: "Lesson audio build"
+  short_description: "Key-checked scripts and Gemini/Codex audio briefs; transcript check, clip map, disclosure"
+policy:
+  allow_implicit_invocation: true

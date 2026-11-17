@@ -1,0 +1,42 @@
+{
+  "about": "Every shipped document (anything under assets/certificates/ and every PDF) after someone looked at it for personal data, pinned by sha256. tests/site.test.mjs fails when a document ships unreviewed or changes after review. Decision 'public': fine to publish as it is. Decision 'redact': holds data the owner may not mean to publish; it is also registered in web/known-issues.json. Name the kinds of data in notes, never the values: this repository is public.",
+  "reviewed_on": "2026-10-29",
+  "reviewed": [
+    {
+      "file": "assets/certificates/cae-preparation-c1.png",
+      "sha256": "f190cf86909172851de3c7b0351b1a71a42dd58e20af2b0a4a2cc58a1ee6d93a",
+      "decision": "public",
+      "notes": "Name, course, teacher's name, issue month, hours, QR code and certificate code. Normal for a verifiable certificate."
+    },
+    {
+      "file": "assets/certificates/general-english-c2-part-1.png",
+      "sha256": "b4261a9f25f2979dbb21fb4b54dd29ff3becfe5068def0f483fee1d91555ee49",
+      "decision": "public",
+      "notes": "Same layout as the CAE certificate: name, course, teacher's name, issue month, hours, QR code and certificate code."
+    },
+    {
+      "file": "assets/certificates/general-english-c2-part-2.png",
+      "sha256": "b7d6c8cc9ea3f58e1ffe8e8acdaa611842b7c20358bd2dbb46239726b6cf27b8",
+      "decision": "public",
+      "notes": "Same layout as the CAE certificate: name, course, teacher's name, issue month, hours, QR code and certificate code."
+    },
+    {
+      "file": "assets/certificates/pte-academic-score-report.png",
+      "sha256": "e428835e28d982a7f721972b93e43745ecf05ad9234fa4e3f698f41fbdf6c952",
+      "decision": "redact",
+      "notes": "Photo, date of birth, gender, citizenship, test-taker ID, registration ID, score-report code and test-centre ID, beside the name and scores. Registered as pii-pte-report."
+    },
+    {
+      "file": "assets/certificates/yappi-business-english.png",
+      "sha256": "b86a36589726efc3f4198b76a9836040574fc94d4b39c56a88d530a983947e54",
+      "decision": "public",
+      "notes": "Name, course, grade, date, the issuer's name, handwritten signature and company stamp with a registration code. Usual on a certificate; whether to show a signature is the owner's call."
+    },
+    {
+      "file": "assets/Andrii_Volnianskyi_CV.pdf",
+      "sha256": "c8a8599d0da62ee7f5d657b13007fd6c82afbcb26eee068854ce1473223645b1",
+      "decision": "public",
+      "notes": "Two image-only pages. Phone, email and photo are intended on a CV. Its PTE card is a redesigned summary with no IDs, checked at full resolution."
+    }
+  ]
+}

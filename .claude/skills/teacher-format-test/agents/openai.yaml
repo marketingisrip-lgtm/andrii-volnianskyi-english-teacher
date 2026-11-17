@@ -1,0 +1,5 @@
+interface:
+  display_name: "Teacher-format test"
+  short_description: "Build or audit a Grade 10 exam-style test: coverage matrix that blocks release, key mechanics, dated formats"
+policy:
+  allow_implicit_invocation: true

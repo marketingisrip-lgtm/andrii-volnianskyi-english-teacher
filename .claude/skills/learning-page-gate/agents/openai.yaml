@@ -1,0 +1,5 @@
+interface:
+  display_name: "Learning page gate"
+  short_description: "Aim, self-check, exam-format, state, link and access gate for English-learning pages"
+policy:
+  allow_implicit_invocation: true
