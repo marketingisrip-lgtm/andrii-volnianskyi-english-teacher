@@ -272,8 +272,9 @@ Answers that differ between the key, the analysis and the plan come from `pack-c
   each with a credit. The Week 2 plan (line 329) records a student pack whose images look
   AI-generated and have no credit: FAIL until they have one.
 - Teacher-made audio is disclosed on the plan's materials line and on the slide or audio bar that
-  plays it: "Teacher-made recording · AI voice (ElevenLabs), British English · not the publisher's
-  audio" (`lesson-audio-build`, step 7).
+  plays it: "Teacher-made recording · AI voice (<the tool used: Gemini, or OpenAI via Codex>),
+  British English · not the publisher's audio" (`lesson-audio-build`, step 7). ElevenLabs is no
+  longer used; a recording made with it earlier keeps its ElevenLabs label.
 
 ## 9. Page counts and print
 - Count PDF pages and compare each count with the one the plan or guide states (for example "handout

@@ -7,7 +7,15 @@
       "should_trigger": true
     },
     {
-      "query": "Make the audio for the NASA listening script V5 with a British AI voice.",
+      "query": "I need the audio for U39 Ex.1. Write the Gemini audio brief so I can make it on my Mac.",
+      "should_trigger": true
+    },
+    {
+      "query": "Give me a Codex prompt to make the NASA listening script V5 audio with a British AI voice.",
+      "should_trigger": true
+    },
+    {
+      "query": "I put the listen-and-check recording for U39 in Drive. Check it against the script and make the clip map.",
       "should_trigger": true
     },
     {
